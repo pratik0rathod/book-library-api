@@ -1,1 +1,1 @@
-from ..apps.users.routers import user_router
+from apps.users.routers import user_router

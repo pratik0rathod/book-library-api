@@ -1,1 +1,1 @@
-from . import base
+import config

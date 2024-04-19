@@ -1,5 +1,5 @@
 fastapi==0.110.1
-uvicorn==0.29.0
-passlib[bcrypt]
+'uvicorn[standard]'
+"passlib[bcrypt]"
 alembic==1.13.1
-dotenv
+psycopg2
