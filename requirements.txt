@@ -3,3 +3,5 @@ fastapi==0.110.1
 "passlib[bcrypt]"
 alembic==1.13.1
 psycopg2
+'pydantic[email]'
+

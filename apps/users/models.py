@@ -10,13 +10,14 @@ class UserEnum(enum.Enum):
     LIBRARIAN = 'Librarian'
 
 
-class User(base.Base):
-    __tablename__ = "user"
+class Users(base.Base):
+    __tablename__ = "users"
+    
     username:Mapped[str] = mapped_column(unique=True)
     email:Mapped[str] = mapped_column(unique=True)
     password:Mapped[str]
     user_type:Mapped[UserEnum] = mapped_column(default=UserEnum.READER)
      
-    books:Mapped["Book"] =  relationship(back_populates="user")
+    books:Mapped["Books"] =  relationship(back_populates="user")
 
-from apps.books.models import Book
+from apps.books.models import Books
