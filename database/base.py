@@ -6,8 +6,6 @@ from . import config
 
 engine =  create_engine(url=config.get_db_url())
 
-print(engine)
-
 session_local = sessionmaker(bind=engine,autoflush=False,autocommit=False)
  
 @as_declarative()
