@@ -18,6 +18,6 @@ class Users(base.Base):
     password:Mapped[str]
     user_type:Mapped[UserEnum] = mapped_column(default=UserEnum.READER)
      
-    books:Mapped["Books"] =  relationship(back_populates="user")
+    # book:Mapped["Books"] =  relationship(back_populates="user")
 
 from apps.books.models import Books

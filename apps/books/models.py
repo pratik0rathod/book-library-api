@@ -15,6 +15,6 @@ class Books(base.Base):
     
     added_by_id:Mapped[int] = mapped_column(ForeignKey("users.id"),nullable=True)
     
-    user:Mapped["Users"] =  relationship(backref=="user")
+    # user:Mapped["Users"] =  relationship(backref=="book")
 
 from apps.users.models import Users

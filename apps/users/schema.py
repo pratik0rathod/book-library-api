@@ -10,5 +10,8 @@ class RetriveUser(User):
 class UserRegister(RetriveUser):
     password: str
     
+class LoginUser(User):
+    password:str
+    
     
     

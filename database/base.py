@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base,as_declarative,declared_
 
 from . import config
 
-engine =  create_engine(url=config.get_db_url())
+engine =  create_engine(url=config.get_db_url_str())
 
 session_local = sessionmaker(bind=engine,autoflush=False,autocommit=False)
  
@@ -14,7 +14,7 @@ class Base(object):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-
+    
     id:Mapped[int] = mapped_column(primary_key=True,autoincrement=True,sort_order=-1)
 
 

@@ -4,4 +4,4 @@ fastapi==0.110.1
 alembic==1.13.1
 psycopg2
 'pydantic[email]'
-
+"python-jose[cryptography]"

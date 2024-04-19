@@ -1,1 +1,2 @@
-from apps.users.models import User
+from apps.users.models import Users
+
