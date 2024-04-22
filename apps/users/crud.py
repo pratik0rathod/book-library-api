@@ -8,7 +8,6 @@ def add_user(db:Session,UserObj:Users):
     db.commit()
     return True
 
-
 def get_user_by_username(db:Session,username:str):
     return db.query(Users).filter(Users.username ==  username).first()  
 
@@ -28,6 +27,25 @@ def check_username(db:Session,username:str):
   
     obj = db.query(Users).filter(Users.username ==  username).first()  
   
+    if obj is not None:
+        return True
+
+    return False
+
+def check_email_update(db:Session,email:EmailStr,userid:int):
+    
+    obj = db.query(Users).filter(Users.email ==  email,Users.id != userid).first()
+    
+    if obj is not None:
+        return True
+    
+    return False
+
+def check_username_update(db:Session,username:str,userid:int):
+  
+    obj = db.query(Users).filter(Users.username ==  username,Users.id != userid).first()  
+    print(obj)
+    
     if obj is not None:
         return True
     

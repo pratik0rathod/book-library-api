@@ -6,18 +6,24 @@ from sqlalchemy.orm import Session
 
 def register_user(db:Session,user:schema.UserRegister):
     new_user  =  models.Users(username =user.username,email = user.email,password = auth.hash_password(user.password))
-       
+    errors:dict[str,str] = dict()
+    
     try: 
         if crud.check_username(db,new_user.username):
-            raise HTTPException(status_code=400,detail={"error":"Username is already taken"})
-        
+            errors["username_error"] = "Username is already taken"
+          
         if crud.check_email(db,new_user.email):
-            raise HTTPException(status_code=400,detail={"error":"User with this email address is already registed"})
-    
+            errors["useremail_error"] = "User with this email address is already registed"
+        
+        if len(errors) > 0:
+            raise HTTPException(status_code=400,detail={"errors":errors})
+        
         if crud.add_user(db,new_user):
             return {"success":"User Added sucessfully"}
 
     except HTTPException as e:
+        print(e)
+        
         raise e
     
     except Exception as e:

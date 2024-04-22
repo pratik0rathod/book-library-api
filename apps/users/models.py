@@ -5,9 +5,9 @@ from sqlalchemy import Enum
 import enum
 
 class UserEnum(enum.Enum):
-    ADMIN = 'Admin'
-    READER = 'Reader'
-    LIBRARIAN = 'Librarian'
+    ADMIN = 'ADMIN'
+    READER = 'READER'
+    LIBRARIAN = 'LIBRARIAN'
 
 
 class Users(base.Base):
