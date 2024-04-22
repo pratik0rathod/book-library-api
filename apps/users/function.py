@@ -32,7 +32,7 @@ def login_user(db:Session,user:schema.LoginUser):
         if user_obj is not None:
             if auth.verify_password(user.password,user_obj.password):
            
-                return auth.create_token(({'sub':user_obj.id}))
+                return auth.create_token(({'sub':str(user_obj.id)}))
         
         raise HTTPException(status_code=400,detail={"error":"Username or password wrong"})
     
@@ -44,5 +44,6 @@ def login_user(db:Session,user:schema.LoginUser):
         raise HTTPException(status_code=500,detail={"error":"Internal server error"})
 
     
-def get_user(db:Session):    
-    pass
+def get_me(db:Session,userid:int):
+    user_obj = crud.get_user_by_userid(db,userid)
+    return jsonable_encoder(user_obj)

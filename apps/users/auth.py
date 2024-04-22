@@ -46,7 +46,6 @@ def decode_token(token):
     return jwt.decode(token,JWT_SECRET,algorithms=[JWT_ALGORITHM])
 
 
-
 def get_user(token:Annotated[str,Depends(oauth_scheme)]):
 
     credentials_exception = HTTPException(

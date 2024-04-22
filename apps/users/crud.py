@@ -12,6 +12,9 @@ def add_user(db:Session,UserObj:Users):
 def get_user_by_username(db:Session,username:str):
     return db.query(Users).filter(Users.username ==  username).first()  
 
+def get_user_by_userid(db:Session,userid:int):
+    return db.query(Users).filter(Users.id ==  userid).first()  
+
 def check_email(db:Session,email:EmailStr):
     
     obj = db.query(Users).filter(Users.email ==  email).first()
