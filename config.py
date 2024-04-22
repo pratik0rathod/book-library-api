@@ -15,6 +15,8 @@ class DatabaseSettings(BaseSettings):
     JWT_SECRET_KEY:SecretStr
     JWT_ALGORITHM : str
     
+    SESSION_SECRET:SecretStr
+    
 db_settings = DatabaseSettings()
 
 def get_db_url():
