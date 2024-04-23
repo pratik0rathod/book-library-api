@@ -10,8 +10,12 @@ from starlette_admin.contrib.sqla import Admin
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
-
 class UserView(ModelView):
+    exclude_fields_from_list = [models.Users.password]
+    exclude_fields_from_edit = [models.Users.created_on,models.Users.last_updated]
+    exclude_fields_from_create = [models.Users.created_on,models.Users.last_updated]
+    exclude_fields_from_detail = [models.Users.password]
+   
     async def before_create(self, request: Request, data: Dict[str, Any], obj: models.Users) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
@@ -27,7 +31,7 @@ class UserView(ModelView):
 
         data.update({'password': hash_password(data['password'])})
         obj.password = data['password']
-
+        
         return super().before_create(request, data, obj)
 
     async def before_edit(self, request: Request, data: Dict[str, Any], obj: models.Users) -> Coroutine[Any, Any, None]:
@@ -48,3 +52,9 @@ class UserView(ModelView):
         obj.password = data['password']
 
         return super().before_edit(request, data, obj)
+
+class BookView(ModelView):
+    exclude_fields_from_edit = [models.Books.created_on,models.Books.last_updated]
+    exclude_fields_from_create = [models.Books.user,models.Books.created_on,models.Books.last_updated]
+    
+    

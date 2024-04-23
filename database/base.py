@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker,mapped_column,Mapped
 from sqlalchemy.ext.declarative import declarative_base,as_declarative,declared_attr
-
+from sqlalchemy import ForeignKey
 from datetime import datetime
 
 from . import config
@@ -19,8 +19,9 @@ class Base(object):
         
     id:Mapped[int] = mapped_column(primary_key=True,autoincrement=True,sort_order=-1)
     created_on:Mapped[datetime] = mapped_column(default=datetime.now)
-    last_updated:Mapped[datetime] = mapped_column(onupdate=datetime.now)
-
+    last_updated:Mapped[datetime] = mapped_column(onupdate=datetime.now,default=datetime.now)
+    created_by:Mapped[int] = mapped_column(ForeignKey("users.id"),nullable=True)
+    
 def create_db_table():
     Base.metadata.create_all(engine)
         

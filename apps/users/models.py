@@ -18,5 +18,8 @@ class Users(base.Base):
     password:Mapped[str]
     user_type:Mapped[UserEnum] = mapped_column(default=UserEnum.READER)    
     birth_date:Mapped[date]
-    
+    # parent = relationship("users",backref="parent")
+    books = relationship("Books", back_populates="user")
+
+
 from apps.books.models import Books

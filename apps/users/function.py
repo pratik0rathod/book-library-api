@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 def register_user(db:Session,user:schema.UserRegister):
-    new_user  =  models.Users(username =user.username,email = user.email,password = auth.hash_password(user.password))
+    new_user  =  models.Users(username =user.username,email = user.email,birth_date = user.birth_date, password = auth.hash_password(user.password))
     errors:dict[str,str] = dict()
     
     try: 
