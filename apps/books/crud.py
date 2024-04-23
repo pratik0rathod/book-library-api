@@ -14,16 +14,9 @@ def get_a_books(db: Session, book_id):
 
 
 def create_book_item(db: Session, user: Users, book: schema.BooksSchema):
-    book_obj = models.Books(
-        # title = book.title,
-        # isbn = book.isbn,
-        # author = book.author,
-        # publication_date = book.publication_date,
-        # ratings =book.ratings,
-        **book.model_dump(),
-        added_by=user.id,
-    )
 
+    book_obj = models.Books(**book.model_dump(),added_by=user.id,)
+    print(book_obj.genre)
     db.add(book_obj)
     db.commit()
     return True
@@ -45,11 +38,11 @@ def update_book(db: Session, user: Users, book: schema.BooksSchema, book_id: int
     udq = update(models.Books).where(models.Books.id ==
                                      book_id).values(**book.model_dump())
     result = db.execute(udq)
-    db.commit()
     
-    if result.rowcount == 0:
-        return False
+    if result.rowcount == 1:
+        db.commit()
+        return True
 
-    return True
+    return False
     
     
