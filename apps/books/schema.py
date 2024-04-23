@@ -1,8 +1,11 @@
 from pydantic import BaseModel
+from datetime import date
 
 class BooksSchema(BaseModel):
     
     title:str
     author:str
-    publication_date:str 
-    ratings:str
+    isbn:str
+    publication_date: date
+    ratings:float
+    

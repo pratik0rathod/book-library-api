@@ -13,7 +13,7 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
         with base.session_local() as db:
             user = crud.get_user_by_username(db, username)
 
-            if user.user_type ==models.UserEnum.ADMIN:
+            if user.user_type == models.UserEnum.ADMIN and user.is_active:
                 if user is not None:
                     if auth.verify_password(password, user.password):
                         request.session.update({"userid": user.id})

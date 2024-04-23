@@ -20,7 +20,6 @@ class Base(object):
     id:Mapped[int] = mapped_column(primary_key=True,autoincrement=True,sort_order=-1)
     created_on:Mapped[datetime] = mapped_column(default=datetime.now)
     last_updated:Mapped[datetime] = mapped_column(onupdate=datetime.now,default=datetime.now)
-    created_by:Mapped[int] = mapped_column(ForeignKey("users.id"),nullable=True)
     
 def create_db_table():
     Base.metadata.create_all(engine)

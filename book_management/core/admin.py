@@ -4,6 +4,7 @@ from starlette_admin.views import CustomView
 from . import providers,views
 from apps.users import models,schema
 from apps.books import schema as bookschema
+
 admin = Admin(
     engine=base.engine,
     title='Admin',
