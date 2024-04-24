@@ -9,12 +9,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from database.base import get_db
 
 from apps.users import function,schema,auth
+from apps.users.api import reader_api
 
 user_router  = APIRouter(prefix='/user',tags=['User'])
 
-@user_router.get("/")
-async def get(db:Annotated[Session,Depends(get_db)]):
-    return {"message":"please wait under developement"}
+user_router.include_router(reader_api.reader_router)
 
 @user_router.post("/register")
 async def register_user(db:Annotated[Session,Depends(get_db)],user:schema.UserRegister):
@@ -24,8 +23,15 @@ async def register_user(db:Annotated[Session,Depends(get_db)],user:schema.UserRe
 async def login_user(db:Annotated[Session,Depends(get_db)],userid:Annotated[OAuth2PasswordRequestForm,Depends()]):
     return function.login_user(db,userid)
 
+@user_router.get("/me",response_model=schema.RetriveUser)
+async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
+    return function.get_me(db,int(userid))
 
 @user_router.get("/me",response_model=schema.RetriveUser)
 async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
     return function.get_me(db,int(userid))
+
+@user_router.delete("/delete/me",response_model=schema.RetriveUser)
+async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
+    return {"message":"you have to return yours books"}
 

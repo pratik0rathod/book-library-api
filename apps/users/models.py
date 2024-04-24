@@ -20,7 +20,7 @@ class Users(base.Base):
     birth_date:Mapped[date]
     is_active : Mapped[bool] = mapped_column(default=True)
     added_by_admin :Mapped[bool] = mapped_column(default=False)
-    soft_delete = Mapped[bool] = mapped_column(default=False,nullable=True)
+    soft_delete:Mapped[bool] = mapped_column(default=False,nullable=True)
     books = relationship("Books", back_populates="user")
 
 from apps.books.models import Books

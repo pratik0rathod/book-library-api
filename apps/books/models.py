@@ -6,7 +6,6 @@ from datetime import date
 
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import String
-from sqlalchemy.ext.mutable import MutableList
 # from sqlalchemy import PickleType
 # Implement age rating for books/manga 
 

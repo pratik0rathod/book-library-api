@@ -57,7 +57,6 @@ def get_user(token:Annotated[str,Depends(oauth_scheme)]):
     try:    
 
         data = decode_token(token)
-
         return data['sub']
     
     except JWTError as e:
