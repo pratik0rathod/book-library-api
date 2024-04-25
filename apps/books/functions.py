@@ -5,6 +5,7 @@ from fastapi.exceptions import HTTPException
 from apps.users import crud as usercrud,models as usermodel
 from apps.books import crud,schema
 from sqlalchemy.orm import Session
+
 def get_all_books(db,user_id):
 
     try:
@@ -150,14 +151,39 @@ def return_book(db:Session,user_id,book_id):
         raise HTTPException(status_code=500,detail={"error":"Internal server error"})
 
 def return_book_history(db:Session,user_int:int):
-    history = crud.return_book_history(db,user_int)
-    adapter = TypeAdapter(list[schema.BookTransactionSchema])  
-    result = adapter.dump_python(history)
-    
-    return jsonable_encoder(result)
-    
+    try:
+        history = crud.return_book_history(db,user_int)
+        adapter = TypeAdapter(list[schema.BookTransactionSchema])  
+        result = adapter.dump_python(history)    
+       
+        if not result:
+            return {"error":"empty results"}
+        return jsonable_encoder(result)
+        
+    except HTTPException as h:
+        raise h
+        
+    except Exception as e: 
+        db.rollback()
+        print(e)
+        raise HTTPException(status_code=500,detail={"error":"Internal server error"})
+
     
 def search_book(db:Session,user_int:int,search:str):
-    results = crud.search_book(db,search)
-    return jsonable_encoder(results)
+    try:
+        
+        results = crud.search_book(db,search)
+        if not results:
+            return {"message":"could not found"}
+        return jsonable_encoder(results)
+    
+    except HTTPException as h:
+        raise h
+        
+    except Exception as e: 
+        db.rollback()
+        print(e)
+        raise HTTPException(status_code=500,detail={"error":"Internal server error"})
 
+    
+    
