@@ -1,6 +1,6 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-from apps.users import models
-
+from apps.users import models,schema
 from pydantic import EmailStr
 
 def add_user(db:Session,UserObj:models.Users):
@@ -69,3 +69,9 @@ def set_status(db:Session,reader_id:int,status:bool):
         return True
    
     return False
+
+def search_reader(db:Session,filers:schema.FilterModelUser):
+    query = select(models.Users)
+    query = filers.filter(query)
+    results = db.execute(query)
+    return results.scalars().all()

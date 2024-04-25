@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated,Any
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -17,6 +17,10 @@ librarian_router.include_router(books_router_common)
 @librarian_router.get("/all",response_model=list[schema.RetriveUser])
 async def get_all_readers(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
     return function.get_all_reader(db,int(userid))
+
+@librarian_router.get("/search")
+async def search_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],filers:Annotated[schema.FilterModelUser,Depends(schema.FilterModelUser)]):
+    return function.search_reader(db,int(userid),filers)
 
 @librarian_router.get("/{reader_id}",response_model=schema.RetriveUser)
 async def get_a_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],reader_id:int):
