@@ -1,7 +1,8 @@
 from typing import Any, Coroutine, Dict
 
 from apps.users.auth import hash_password
-from apps.users import models, crud
+from apps.users import models as user_model, crud
+from apps.books import models as book_model
 
 from database import base
 from fastapi.requests import Request
@@ -10,21 +11,23 @@ from starlette_admin.contrib.sqla import Admin
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
+
 class UserView(ModelView):
-    exclude_fields_from_list = [models.Users.password]
-    exclude_fields_from_edit = [models.Users.created_on,models.Users.last_updated,models.Users.added_by_admin]
-    exclude_fields_from_create = [models.Users.created_on,models.Users.last_updated,models.Users.added_by_admin]
-    exclude_fields_from_detail = [models.Users.password]
-   
-    #overide the default query
+    exclude_fields_from_list = [user_model.Users.password]
+    exclude_fields_from_edit = [user_model.Users.created_on,
+                                user_model.Users.last_updated, user_model.Users.added_by_admin]
+    exclude_fields_from_create = [user_model.Users.created_on,
+                                  user_model.Users.last_updated, user_model.Users.added_by_admin]
+    exclude_fields_from_detail = [user_model.Users.password]
+
+    # overide the default query
     def get_list_query(self):
-        return super().get_list_query().where(models.Users.user_type != models.UserEnum.ADMIN)
+        return super().get_list_query().where(user_model.Users.user_type != user_model.UserEnum.ADMIN)
 
     def get_count_query(self):
-        return super().get_count_query().where(models.Users.user_type != models.UserEnum.ADMIN)
-    
-    
-    async def before_create(self, request: Request, data: Dict[str, Any], obj: models.Users) -> Coroutine[Any, Any, None]:
+        return super().get_count_query().where(user_model.Users.user_type != user_model.UserEnum.ADMIN)
+
+    async def before_create(self, request: Request, data: Dict[str, Any], obj: user_model.Users) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
         with base.session_local() as db:
@@ -42,7 +45,7 @@ class UserView(ModelView):
         obj.added_by_admin = True
         return super().before_create(request, data, obj)
 
-    async def before_edit(self, request: Request, data: Dict[str, Any], obj: models.Users) -> Coroutine[Any, Any, None]:
+    async def before_edit(self, request: Request, data: Dict[str, Any], obj: user_model.Users) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
         with base.session_local() as db:
@@ -60,9 +63,21 @@ class UserView(ModelView):
         obj.password = data['password']
 
         return super().before_edit(request, data, obj)
-    
+
+
 class BookView(ModelView):
-    exclude_fields_from_edit = [models.Books.created_on,models.Books.last_updated]
-    exclude_fields_from_create = [models.Books.created_on,models.Books.last_updated]
+    exclude_fields_from_edit = [
+        book_model.Books.created_on, book_model.Books.last_updated]
+    exclude_fields_from_create = [
+        book_model.Books.created_on, book_model.Books.last_updated]
+
+
+class BookTranscationView(ModelView):
+    exclude_fields_from_edit = [
+        book_model.BookTransaction.created_on, book_model.BookTransaction.last_updated]
     
-    
+    exclude_fields_from_create = [book_model.BookTransaction.created_on,
+                                  book_model.BookTransaction.last_updated,
+                                  book_model.BookTransaction.due_date,
+                                  book_model.BookTransaction.borrow_date,
+                                  ]

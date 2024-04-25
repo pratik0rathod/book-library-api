@@ -3,7 +3,7 @@ from starlette_admin.contrib.sqla import Admin,ModelView
 from starlette_admin.views import CustomView
 from . import providers,views
 from apps.users import models,schema
-from apps.books import schema as bookschema
+from apps.books import schema as bookschema, models as bookmodel
 
 admin = Admin(
     engine=base.engine,
@@ -26,8 +26,17 @@ admin.add_view(views.UserView(
 
 
 admin.add_view(views.BookView(
-    model=models.Books,
+    model=bookmodel.Books,
     label="Books",
     icon="fa fa-book",
     pydantic_model=bookschema.BooksSchema
 ))
+
+
+admin.add_view(views.BookTranscationView(
+    model=bookmodel.BookTransaction,
+    label="Borrow History",
+    icon="fa fa-history",
+    pydantic_model=bookschema.BookTransactionSchema
+))
+

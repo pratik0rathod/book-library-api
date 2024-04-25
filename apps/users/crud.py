@@ -55,7 +55,7 @@ def get_all_reader(db:Session):
     return obj
 
 def get_a_reader(db:Session,reader_id:int):
-    obj = db.query(models.Users).filter(models.Users.user_type ==  models.UserEnum.READER and models.Users.id == reader_id).first()
+    obj = db.query(models.Users).filter(models.Users.user_type ==  models.UserEnum.READER,models.Users.id == reader_id).first()
     return obj
 
 def set_status(db:Session,reader_id:int,status:bool):

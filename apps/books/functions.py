@@ -1,12 +1,10 @@
-
-# from pydantic import parse_obj_as
 from pydantic import TypeAdapter
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
 from apps.users import crud as usercrud,models as usermodel
 from apps.books import crud,schema
-
+from sqlalchemy.orm import Session
 def get_all_books(db,user_id):
 
     try:
@@ -107,5 +105,46 @@ def delete_book_item(db,user_id,book_id):
         raise h
         
     except Exception as e: 
+        print(e)
+        raise HTTPException(status_code=500,detail={"error":"Internal server error"})
+    
+    
+def borrow_book(db,user_id,book_id):
+    try:
+        
+        users_obj =  usercrud.get_a_reader(db,user_id)
+        book_obj = crud.get_a_books(db,book_id)
+      
+        if book_obj is None or book_obj.is_available == False:
+            raise HTTPException(status_code=400,detail={"error":"This book not available"})
+        
+        if crud.borrow_book(db,users_obj,book_obj):
+            return {"message":"book transacation is started"}
+        
+        raise HTTPException(status_code=400,detail={"error":"Something went wrong - looks like your transacation didnt ended please contact admin"})
+    except HTTPException as h:
+        raise h
+        
+    except Exception as e: 
+        db.rollback()
+        print(e)
+        raise HTTPException(status_code=500,detail={"error":"Internal server error"})
+
+def return_book(db:Session,user_id,book_id):
+   
+    try:
+        users_obj =  usercrud.get_a_reader(db,user_id)
+        book_obj = crud.get_a_books(db,book_id)
+
+        if crud.return_book(db,users_obj,book_obj):
+            return {"meesage":"Book transaction updated and ended"}
+        
+        raise HTTPException(status_code=400,detail={"error":"trasacation not found"})
+
+    except HTTPException as h:
+        raise h
+        
+    except Exception as e: 
+        db.rollback()
         print(e)
         raise HTTPException(status_code=500,detail={"error":"Internal server error"})

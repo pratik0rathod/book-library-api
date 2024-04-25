@@ -13,3 +13,11 @@ class BooksSchema(BaseModel):
     publication_date: date
     ratings:float
     
+class BookTransactionSchema(BaseModel):
+    borrow_date:date
+    due_date:date
+    return_date: date 
+    
+    
+    
+    
