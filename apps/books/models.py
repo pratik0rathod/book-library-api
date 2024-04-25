@@ -28,7 +28,7 @@ class BookTransaction(base.Base):
     user_id:Mapped[int] = mapped_column(ForeignKey("users.id"))
     book_id:Mapped[int] = mapped_column(ForeignKey("books.id"))
     borrow_date:Mapped[date] = mapped_column(default=date.today())
-    due_date:Mapped[date] = mapped_column(default=(date.today()+timedelta(30)))
+    due_date:Mapped[date] = mapped_column(default=(date.today()+timedelta(days=28)))
     return_date:Mapped[date] = mapped_column(nullable=True)
     
     user =relationship("Users", back_populates="book_transaction")
@@ -36,3 +36,5 @@ class BookTransaction(base.Base):
     
     
 from apps.users.models import Users
+
+date.day

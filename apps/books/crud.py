@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from apps.books import models, schema
 from apps.users.models import Users
 
-from sqlalchemy import update
-
+from sqlalchemy import update,select
+from sqlalchemy.orm import joinedload
 import datetime
 
 
@@ -80,9 +80,22 @@ def return_book(db: Session, user: models.Users, book: models.Books):
         # db.begin()
 
         book_transaction.return_date = datetime.date.today()
+        
         book.is_available = True
         db.add(book_transaction)
         db.add(book)
         db.commit()
         return True
     return False
+
+def return_book_history(db:Session,user_id):
+    history = db.query(models.BookTransaction).filter(models.BookTransaction.user_id == user_id).options(joinedload(models.BookTransaction.book)).all()
+    return history
+
+
+def search_book(db,search:schema.FilterModelBook):
+    query = select(models.Books)
+    query = search.filter(query)
+    results = db.execute(query)
+    return results.scalars().all()
+    

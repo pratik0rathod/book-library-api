@@ -28,6 +28,10 @@ async def get_all_books(db:Annotated[Session,Depends(get_db)],user_id:Annotated[
 async def get_a_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],book_id:int):
     return functions.get_a_book(db,user_id,book_id)
 
+@books_router.get("/search")
+async def search_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],search:Annotated[schema.FilterModelBook,Depends(schema.FilterModelBook)]):
+    return functions.search_book(db,user_id,search)
+
 @books_router.post("/create")
 async def create_book_item(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],book:schema.BooksSchema):
     return functions.create_book_item(db,user_id,book)

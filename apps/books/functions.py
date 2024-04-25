@@ -148,3 +148,16 @@ def return_book(db:Session,user_id,book_id):
         db.rollback()
         print(e)
         raise HTTPException(status_code=500,detail={"error":"Internal server error"})
+
+def return_book_history(db:Session,user_int:int):
+    history = crud.return_book_history(db,user_int)
+    adapter = TypeAdapter(list[schema.BookTransactionSchema])  
+    result = adapter.dump_python(history)
+    
+    return jsonable_encoder(result)
+    
+    
+def search_book(db:Session,user_int:int,search:str):
+    results = crud.search_book(db,search)
+    return jsonable_encoder(results)
+
