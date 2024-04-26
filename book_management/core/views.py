@@ -1,4 +1,6 @@
-from typing import Any, Coroutine, Dict
+from typing import Any, Coroutine, Dict, Optional, Sequence, Type,Union
+
+from starlette_admin.fields import BaseField
 
 from apps.users.auth import hash_password
 from apps.users import models as user_model, crud
@@ -8,16 +10,27 @@ from database import base
 from fastapi.requests import Request
 
 from starlette_admin.contrib.sqla import Admin
-from starlette_admin.contrib.sqla.ext.pydantic import ModelView
+from starlette_admin.contrib.sqla.ext.pydantic import ModelView, BaseModel, BaseSQLAModelConverter
 from starlette_admin.exceptions import FormValidationError
+from starlette_admin import PasswordField, RequestAction
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 class UserView(ModelView):
+
     exclude_fields_from_list = [user_model.Users.password]
+
     exclude_fields_from_edit = [user_model.Users.created_on,
-                                user_model.Users.last_updated, user_model.Users.added_by_admin]
+                                user_model.Users.last_updated,
+                                user_model.Users.added_by_admin,
+                                ]
+
     exclude_fields_from_create = [user_model.Users.created_on,
-                                  user_model.Users.last_updated, user_model.Users.added_by_admin]
+                                  user_model.Users.last_updated,
+                                  user_model.Users.added_by_admin,
+                                  ]
+
     exclude_fields_from_detail = [user_model.Users.password]
 
     # overide the default query
@@ -39,12 +52,14 @@ class UserView(ModelView):
 
             if len(errors) > 0:
                 raise FormValidationError(errors)
-
+        
         data.update({'password': hash_password(data['password'])})
+
         obj.password = data['password']
+
         obj.added_by_admin = True
         return super().before_create(request, data, obj)
-
+    
     async def before_edit(self, request: Request, data: Dict[str, Any], obj: user_model.Users) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
@@ -58,13 +73,18 @@ class UserView(ModelView):
 
             if len(errors) > 0:
                 raise FormValidationError(errors)
-
-        data.update({'password': hash_password(data['password'])})
-        obj.password = data['password']
-
+            
         return super().before_edit(request, data, obj)
 
-
+    async def edit(self, request: Request, pk: Any, data: Dict[str, Any]) -> Any:
+        obj = await self.find_by_pk(request, pk)
+           
+        if obj.password != data['password']:
+            data.update({'password': hash_password(data['password'])})
+            
+        return await super().edit(request, pk, data)
+    
+    
 class BookView(ModelView):
     exclude_fields_from_edit = [
         book_model.Books.created_on, book_model.Books.last_updated]
@@ -75,7 +95,7 @@ class BookView(ModelView):
 class BookTranscationView(ModelView):
     exclude_fields_from_edit = [
         book_model.BookTransaction.created_on, book_model.BookTransaction.last_updated]
-    
+
     exclude_fields_from_create = [book_model.BookTransaction.created_on,
                                   book_model.BookTransaction.last_updated,
                                   book_model.BookTransaction.due_date,

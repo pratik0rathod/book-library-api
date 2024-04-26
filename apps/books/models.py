@@ -36,5 +36,3 @@ class BookTransaction(base.Base):
     
     
 from apps.users.models import Users
-
-date.day

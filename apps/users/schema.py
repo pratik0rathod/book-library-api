@@ -1,5 +1,5 @@
 from typing import Optional
-
+from pydantic import SecretStr
 from pydantic import BaseModel,EmailStr
 from datetime import date
 from apps.users import models
@@ -10,12 +10,11 @@ class User(BaseModel):
     username : str
 
 class RetriveUser(User):
-    id:int
     birth_date: date
     email:EmailStr
   
 class UserRegister(RetriveUser):
-    password: str
+    password: SecretStr
     
 class LoginUser(User):
     password:str
