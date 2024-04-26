@@ -70,6 +70,11 @@ def set_status(db:Session,reader_id:int,status:bool):
    
     return False
 
+def set_delete(db:Session,reader:models.Users):
+    reader.soft_delete = True
+    db.add(reader)
+    db.commit()
+    
 def search_reader(db:Session,filers:schema.FilterModelUser):
     query = select(models.Users)
     query = filers.filter(query)

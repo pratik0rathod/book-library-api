@@ -44,8 +44,12 @@ def login_user(db:Session,user:schema.LoginUser):
         
         if user_obj is not None:
             if auth.verify_password(user.password,user_obj.password):       
+                                
+                if not user_obj.is_active or user_obj.soft_delete:
+                    raise HTTPException(status_code=400,detail={"error":"account is disabled or deleted please contact libary staff or administrator"})
+                    
                 return auth.create_token(({'sub':str(user_obj.id)}))
-        
+
         raise HTTPException(status_code=400,detail={"error":"Username or password wrong"})
     
     except HTTPException as e:
@@ -59,6 +63,26 @@ def login_user(db:Session,user:schema.LoginUser):
 def get_me(db:Session,userid:int):
     user_obj = crud.get_user_by_userid(db,userid)
     return jsonable_encoder(user_obj)
+
+def delete_me(db:Session,userid:int):
+    try:
+        user_obj = crud.get_user_by_userid(db,userid)
+        
+        for history in user_obj.book_transaction:
+            
+            if history.return_date is None:
+                raise HTTPException(status_code=400,detail={"error":"Book transaction still open please return books or contact staff"})
+
+        crud.set_delete(db,user_obj)
+        return {"message":"account deleted sucesfully"}
+    
+    except HTTPException as e:
+        raise e
+    
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500,detail={"error":"Internal server error"})
+
 
 def get_all_reader(db:Session,userid:int):
     try:

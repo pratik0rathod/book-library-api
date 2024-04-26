@@ -25,11 +25,7 @@ async def login_user(db:Annotated[Session,Depends(get_db)],userid:Annotated[OAut
 async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
     return function.get_me(db,int(userid))
 
-@user_router.get("/me",response_model=schema.RetriveUser)
-async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
-    return function.get_me(db,int(userid))
-
-# @user_router.delete("/delete/me")
-# async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
-#     return {"message":"you have to return yours books then you can exit this system"}
+@user_router.delete("/delete/me")
+async def delete_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
+    return function.delete_me(db,int(userid))
 
