@@ -11,6 +11,7 @@ def reguler_user_exception(db,user_id):
         raise HTTPException(status_code=400,detail={"error":"You are not allowed to perform this action"})
     return True
 
+
 def register_user(db:Session,user:schema.UserRegister):
     new_user  =  models.Users(username =user.username,email = user.email,birth_date = user.birth_date, password = auth.hash_password(user.password))
     errors:dict[str,str] = dict()
