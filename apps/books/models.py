@@ -1,6 +1,6 @@
 from . import base
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import mapped_column,Mapped,relationship,backref
+from sqlalchemy.orm import mapped_column,Mapped,relationship
 from typing import Optional
 from datetime import date,timedelta
 
