@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from apps.books import models, schema
+from apps.books import models, schema,filters
 from apps.users.models import Users
 
 from sqlalchemy import update,select
@@ -93,7 +93,7 @@ def return_book_history(db:Session,user_id):
     return history
 
 
-def search_book(db,search:schema.FilterModelBook):
+def search_book(db,search:filters.FilterModelBook):
     query = select(models.Books)
     query = search.filter(query)
     results = db.execute(query)

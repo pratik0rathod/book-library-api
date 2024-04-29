@@ -14,7 +14,7 @@ from alembic import context
 # from . import base
 
 
-from config import get_db_url_str
+from book_management.core.config import get_db_url_str
 
 from apps.users.models import base
 from apps.users.models import base

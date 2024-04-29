@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from apps.users import models,schema
+from apps.users import models,schema,filters
 from pydantic import EmailStr
 
 def add_user(db:Session,UserObj:models.Users):
@@ -75,7 +75,7 @@ def set_delete(db:Session,reader:models.Users):
     db.add(reader)
     db.commit()
     
-def search_reader(db:Session,filers:schema.FilterModelUser):
+def search_reader(db:Session,filers:filters.FilterModelUser):
     query = select(models.Users)
     query = filers.filter(query)
     results = db.execute(query)

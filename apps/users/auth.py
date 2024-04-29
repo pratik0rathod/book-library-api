@@ -1,5 +1,5 @@
 
-import config
+import book_management.core.config as config
 
 from typing import Annotated
 
@@ -7,23 +7,14 @@ from fastapi import HTTPException,Depends,status
 
 from fastapi.security import OAuth2PasswordBearer
 
-from passlib.context import CryptContext
 from datetime import timedelta,datetime,timezone
+
 from jose import JWTError,jwt
 
-
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='user/login')
-pwd_context = CryptContext(schemes=['bcrypt'],deprecated="auto")
 
-JWT_SECRET = config.db_settings.JWT_SECRET_KEY.get_secret_value() 
-JWT_ALGORITHM = config.db_settings.JWT_ALGORITHM 
-
-
-def hash_password(password:str):
-    return pwd_context.hash(password)
-
-def verify_password(plain_password,password):
-    return pwd_context.verify(plain_password,password)
+JWT_SECRET = config.settings.JWT_SECRET_KEY.get_secret_value() 
+JWT_ALGORITHM = config.settings.JWT_ALGORITHM 
 
 def create_token(data:dict,expire_time:timedelta | None = None):
 

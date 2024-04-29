@@ -3,12 +3,7 @@ from . import base
 from sqlalchemy.orm import Mapped,mapped_column,relationship
 from sqlalchemy import Enum
 from datetime import date
-import enum
-
-class UserEnum(enum.Enum):
-    ADMIN = 'ADMIN'
-    READER = 'READER'
-    LIBRARIAN = 'LIBRARIAN'
+from apps.users.constant import UserEnum
 
 class Users(base.Base):
     __tablename__ = "users"

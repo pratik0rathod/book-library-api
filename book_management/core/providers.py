@@ -4,6 +4,7 @@ from starlette_admin.auth import  AuthProvider
 from starlette_admin.exceptions import LoginFailed
 from fastapi.requests import Request
 from apps.users import models, crud, auth
+from book_management.core.hash import verify_password
 from database import base
 
 
@@ -15,7 +16,7 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
 
             if user.user_type == models.UserEnum.ADMIN and user.is_active:
                 if user is not None:
-                    if auth.verify_password(password, user.password):
+                    if verify_password(password, user.password):
                         request.session.update({"userid": user.id})
                         return response
 

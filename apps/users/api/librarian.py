@@ -1,4 +1,4 @@
-from typing import Annotated,Any
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -6,20 +6,16 @@ from sqlalchemy.orm import Session
 
 from database.base import get_db
 
-from apps.users import function,schema,auth
-
-from apps.books.api.routers import books_router_common
+from apps.users import function,schema,auth,filters
 
 librarian_router  = APIRouter(prefix='/readers',tags=['Librarian'])
-
-librarian_router.include_router(books_router_common)
 
 @librarian_router.get("/all",response_model=list[schema.RetriveUser])
 async def get_all_readers(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
     return function.get_all_reader(db,int(userid))
 
 @librarian_router.get("/search")
-async def search_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],filers:Annotated[schema.FilterModelUser,Depends(schema.FilterModelUser)]):
+async def search_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],filers:Annotated[filters.FilterModelUser,Depends(filters.FilterModelUser)]):
     return function.search_reader(db,int(userid),filers)
 
 @librarian_router.get("/{reader_id}",response_model=schema.RetriveUser)

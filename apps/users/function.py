@@ -3,7 +3,7 @@ from pydantic import TypeAdapter
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
+from book_management.core.hash import hash_password
 
 def reguler_user_exception(db,user_id):
     user = crud.get_user_by_userid(db,user_id)
@@ -13,7 +13,7 @@ def reguler_user_exception(db,user_id):
 
 
 def register_user(db:Session,user:schema.UserRegister):
-    new_user  =  models.Users(username =user.username,email = user.email,birth_date = user.birth_date, password = auth.hash_password(user.password))
+    new_user  =  models.Users(username =user.username,email = user.email,birth_date = user.birth_date, password = hash_password(user.password))
     errors:dict[str,str] = dict()
     
     try: 

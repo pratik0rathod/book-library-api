@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base,as_declarative,declared_
 from sqlalchemy import ForeignKey
 from datetime import datetime
 
-from . import config
+from book_management.core import config
 
 engine =  create_engine(url=config.get_db_url_str())
 

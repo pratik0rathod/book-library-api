@@ -5,19 +5,13 @@ from apps.books import functions
 from sqlalchemy.orm import Session
 
 from apps.users import auth
-from apps.books import schema
+from apps.books import schema,filters
 from database.base import get_db
 
 books_router = APIRouter(
     prefix="/books",
     tags=["Librarian"],
 )
-
-books_router_common = APIRouter(
-    prefix="/books",
-    tags=["Librarian"],
-)
-
 
 @books_router.get("/all")
 async def get_all_books(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()]):
@@ -28,7 +22,7 @@ async def get_a_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[aut
     return functions.get_a_book(db,user_id,book_id)
 
 @books_router.get("/search")
-async def search_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],search:Annotated[schema.FilterModelBook,Depends(schema.FilterModelBook)]):
+async def search_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],search:Annotated[filters.FilterModelBook,Depends(filters.FilterModelBook)]):
     return functions.search_book(db,user_id,search)
 
 @books_router.post("/create")

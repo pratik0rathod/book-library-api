@@ -1,19 +1,13 @@
 from typing import Any, Coroutine, Dict
 
-from apps.users.auth import hash_password
+from book_management.core.hash import hash_password
 from apps.users import models as user_model, crud
-from apps.books import models as book_model
 
 from database import base
 from fastapi.requests import Request
 
-from starlette_admin.contrib.sqla import Admin
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
-from starlette_admin import PasswordField, RequestAction
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 class UserView(ModelView):
 
@@ -27,6 +21,10 @@ class UserView(ModelView):
     exclude_fields_from_create = [user_model.Users.created_on,
                                   user_model.Users.last_updated,
                                   user_model.Users.added_by_admin,
+                                  user_model.Users.soft_delete,
+                                  user_model.Users.is_active,
+                                  user_model.Users.added_books,
+                                  user_model.Users.book_transaction
                                   ]
 
     exclude_fields_from_detail = [user_model.Users.password]
@@ -82,20 +80,3 @@ class UserView(ModelView):
             
         return await super().edit(request, pk, data)
     
-    
-class BookView(ModelView):
-    exclude_fields_from_edit = [
-        book_model.Books.created_on, book_model.Books.last_updated]
-    exclude_fields_from_create = [
-        book_model.Books.created_on, book_model.Books.last_updated]
-
-
-class BookTranscationView(ModelView):
-    exclude_fields_from_edit = [
-        book_model.BookTransaction.created_on, book_model.BookTransaction.last_updated]
-
-    exclude_fields_from_create = [book_model.BookTransaction.created_on,
-                                  book_model.BookTransaction.last_updated,
-                                  book_model.BookTransaction.due_date,
-                                  book_model.BookTransaction.borrow_date,
-                                  ]
