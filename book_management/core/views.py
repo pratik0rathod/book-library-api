@@ -1,6 +1,4 @@
-from typing import Any, Coroutine, Dict, Optional, Sequence, Type,Union
-
-from starlette_admin.fields import BaseField
+from typing import Any, Coroutine, Dict
 
 from apps.users.auth import hash_password
 from apps.users import models as user_model, crud
@@ -10,7 +8,7 @@ from database import base
 from fastapi.requests import Request
 
 from starlette_admin.contrib.sqla import Admin
-from starlette_admin.contrib.sqla.ext.pydantic import ModelView, BaseModel, BaseSQLAModelConverter
+from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 from starlette_admin import PasswordField, RequestAction
 

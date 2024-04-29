@@ -21,7 +21,6 @@ books_router_common = APIRouter(
 
 @books_router.get("/all")
 async def get_all_books(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()]):
- 
     return functions.get_all_books(db,user_id)
  
 @books_router.get("/get/{book_id}")

@@ -15,7 +15,7 @@ def get_all_books(db,user_id):
         if user.user_type == usermodel.UserEnum.READER:        
             adapter = TypeAdapter(list[schema.BooksSchema])    
             return jsonable_encoder(adapter.dump_python(books))
-        
+         
         return jsonable_encoder(books)
     
     except HTTPException as h:
