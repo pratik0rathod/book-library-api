@@ -101,9 +101,16 @@ def return_book_history(db: Session, user_int: int):
     return jsonable_encoder(result)
 
 
-def search_book(db: Session, user_int: int, search: str):
+def search_book(db: Session, user_id: int, search: str):
 
     results = crud.search_book(db, search)
+    user = usercrud.get_user_by_userid(db, user_id)
+    
     if not results:
         return {"message": "could not found"}
+    
+    if user.user_type == usermodel.UserEnum.READER:
+        adapter = TypeAdapter(list[schema.BooksSchema])
+        return jsonable_encoder(adapter.dump_python(results))
+    
     return jsonable_encoder(results)

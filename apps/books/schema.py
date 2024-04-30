@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import date,datetime
 
 class BooksSchema(BaseModel):
     
@@ -12,6 +12,13 @@ class BooksSchema(BaseModel):
     is_available:bool
     publication_date: date
     ratings:float
+    
+class BooksSchemaExtra(BooksSchema):
+    id:int
+    added_by:int
+    created_on:datetime
+    last_updated:datetime
+
 
 class BookInTransaction(BaseModel):
     title:str

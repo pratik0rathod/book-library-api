@@ -14,7 +14,7 @@ librarian_router  = APIRouter(prefix='/readers',tags=['Librarian'])
 async def get_all_readers(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
     return function.get_all_reader(db,int(userid))
 
-@librarian_router.get("/search")
+@librarian_router.get("/search",response_model=list[schema.RetriveUser])
 async def search_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],filers:Annotated[filters.FilterModelUser,Depends(filters.FilterModelUser)]):
     return function.search_reader(db,int(userid),filers)
 

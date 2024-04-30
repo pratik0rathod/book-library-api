@@ -92,7 +92,9 @@ def set_status(db, user_id, reader_id, active):
 @reguler_user_exception
 def search_reader(db, user_id, filers):
     results = crud.search_reader(db, filers)
-    adapter = TypeAdapter(list[schema.RetriveUser])
+    
     if not results:
-        return {"message": "user not found"}
-    return jsonable_encoder(adapter.dump_python(results))
+        raise HTTPException(status_code=404, detail={
+                        "error": "resource not found"})
+    
+    return jsonable_encoder(results)

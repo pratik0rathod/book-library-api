@@ -13,15 +13,15 @@ books_router = APIRouter(
     tags=["Librarian"],
 )
 
-@books_router.get("/all")
+@books_router.get("/all",response_model=list[schema.BooksSchemaExtra] | list[schema.BooksSchema])
 async def get_all_books(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()]):
     return functions.get_all_books(db,user_id)
  
-@books_router.get("/get/{book_id}")
+@books_router.get("/get/{book_id}",response_model=schema.BooksSchemaExtra | schema.BooksSchema)
 async def get_a_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],book_id:int):
     return functions.get_a_book(db,user_id,book_id)
 
-@books_router.get("/search")
+@books_router.get("/search",response_model=list[schema.BooksSchemaExtra] | list[schema.BooksSchema])
 async def search_book(db:Annotated[Session,Depends(get_db)],user_id:Annotated[auth.get_user,Depends()],search:Annotated[filters.FilterModelBook,Depends(filters.FilterModelBook)]):
     return functions.search_book(db,user_id,search)
 
