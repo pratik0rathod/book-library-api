@@ -31,7 +31,7 @@ def get_db():
     try:
         yield db
 
-    except Exception as e:
+    except Exception:
         db.close()
-        raise e
+        raise
 
