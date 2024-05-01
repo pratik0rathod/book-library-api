@@ -8,4 +8,3 @@ user_view = UserView(
     icon="fa fa-users",
     pydantic_model=UserRegister,
 )
-

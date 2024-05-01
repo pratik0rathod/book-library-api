@@ -7,5 +7,3 @@ users_routers = APIRouter()
 
 users_routers.include_router(user_router)
 users_routers.include_router(librarian_router)
-
-

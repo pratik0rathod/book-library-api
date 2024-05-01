@@ -22,7 +22,7 @@
 
 - **Run Migrations**
 
-         > alembic upgrade head
+        > alembic upgrade head
 
 
 - **Run Server**

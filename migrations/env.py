@@ -6,7 +6,6 @@ from sqlalchemy import pool
 from alembic import context
 
 
-
 # from . import get_db_url
 
 # from . import User
@@ -28,7 +27,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url',settings.DATABASE_URI.unicode_string())
+config.set_main_option(
+    'sqlalchemy.url', settings.DATABASE_URI.unicode_string())
 
 # add your model's MetaData object here
 # for 'autogenerate' support

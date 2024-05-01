@@ -1,9 +1,8 @@
-from apps.books.schema import BooksSchema,BookTransactionSchema
-from apps.books.models import Books,BookTransaction
+from apps.books.schema import BooksSchema, BookTransactionSchema
+from apps.books.models import Books, BookTransaction
+from apps.books.admin.view import BookTranscationView, BookView
 
-from apps.books.admin.view import BookTranscationView,BookView
-
-book_view =BookView(
+book_view = BookView(
     model=Books,
     label="Books",
     icon="fa fa-book",

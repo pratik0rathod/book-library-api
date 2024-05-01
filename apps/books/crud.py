@@ -12,20 +12,28 @@ def get_books(db: Session):
 
 
 def get_a_books(db: Session, book_id):
-    return db.query(models.Books).filter(models.Books.id == book_id).first()
+    return db.query(models.Books).filter(
+        models.Books.id == book_id
+    ).first()
 
 
-def create_book_item(db: Session, user: Users, book: schema.BooksSchema):
+def create_book_item(
+        db: Session, user: Users,
+        book: schema.BooksSchema):
 
-    book_obj = models.Books(**book.model_dump(), added_by=user.id,)
-    print(book_obj.genre)
+    book_obj = models.Books(
+        **book.model_dump(),
+        added_by=user.id,
+    )
     db.add(book_obj)
     db.commit()
     return True
 
 
 def remove_book_item(db: Session, book_id: int):
-    item = db.query(models.Books).filter(models.Books.id == book_id).first()
+    item = db.query(models.Books).filter(
+        models.Books.id == book_id
+    ).first()
 
     if item is not None:
         db.delete(item)
@@ -35,10 +43,14 @@ def remove_book_item(db: Session, book_id: int):
     return False
 
 
-def update_book(db: Session, user: Users, book: schema.BooksSchema, book_id: int):
+def update_book(
+        db: Session, user: Users,
+        book: schema.BooksSchema, book_id: int):
 
-    udq = update(models.Books).where(models.Books.id ==
-                                     book_id).values(**book.model_dump())
+    udq = update(models.Books).where(
+        models.Books.id ==
+        book_id
+    ).values(**book.model_dump())
     result = db.execute(udq)
 
     if result.rowcount == 1:
@@ -78,8 +90,6 @@ def return_book(db: Session, user: Users, book: models.Books):
     ).first()
 
     if book_transaction:
-        # db.begin()
-
         book_transaction.return_date = datetime.date.today()
 
         book.is_available = True
