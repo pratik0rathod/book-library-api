@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from apps.books import models, schema,filters
+from apps.books import models, schema, filters
 from apps.users.models import Users
 
-from sqlalchemy import update,select
+from sqlalchemy import update, select
 from sqlalchemy.orm import joinedload
 import datetime
 
@@ -48,39 +48,40 @@ def update_book(db: Session, user: Users, book: schema.BooksSchema, book_id: int
     return False
 
 
-def borrow_book(db: Session, user: models.Users, book: models.Books):
+def borrow_book(db: Session, user: Users, book: models.Books):
     # db.begin()
     book_transaction = db.query(models.BookTransaction).filter(
-        models.BookTransaction.book_id == book.id, 
+        models.BookTransaction.book_id == book.id,
         models.BookTransaction.user_id == user.id,
         models.BookTransaction.return_date.is_(None),
-        ).first()
-    
+    ).first()
+
     if book_transaction is not None:
         return False
-    
+
     book_transaction = models.BookTransaction(user_id=user.id, book_id=book.id)
     book.is_available = False
-    
+
     db.add(book)
     db.add(book_transaction)
     db.commit()
     return True
 
-def return_book(db: Session, user: models.Users, book: models.Books):
+
+def return_book(db: Session, user: Users, book: models.Books):
     book.is_available = True
 
     book_transaction = db.query(models.BookTransaction).filter(
-        models.BookTransaction.book_id == book.id, 
+        models.BookTransaction.book_id == book.id,
         models.BookTransaction.user_id == user.id,
         models.BookTransaction.return_date.is_(None),
-        ).first()
+    ).first()
 
     if book_transaction:
         # db.begin()
 
         book_transaction.return_date = datetime.date.today()
-        
+
         book.is_available = True
         db.add(book_transaction)
         db.add(book)
@@ -88,14 +89,23 @@ def return_book(db: Session, user: models.Users, book: models.Books):
         return True
     return False
 
-def return_book_history(db:Session,user_id):
-    history = db.query(models.BookTransaction).filter(models.BookTransaction.user_id == user_id).options(joinedload(models.BookTransaction.book)).all()
+
+def return_book_history(db: Session, user_id):
+    history = db.query(
+        models.BookTransaction
+    ).filter(
+        models.BookTransaction.user_id == user_id
+    ).options(
+        joinedload(
+            models.BookTransaction.book
+        )
+    ).all()
+
     return history
 
 
-def search_book(db,search:filters.FilterModelBook):
+def search_book(db, search: filters.FilterModelBook):
     query = select(models.Books)
     query = search.filter(query)
     results = db.execute(query)
     return results.scalars().all()
-    

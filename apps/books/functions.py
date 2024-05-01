@@ -6,7 +6,7 @@ from apps.users import crud as usercrud, models as usermodel
 from apps.books import crud, schema
 from sqlalchemy.orm import Session
 
-from book_management.core.exceptions import reguler_user_exception
+from book_management.core.permission import reguler_user_permission
 
 
 def get_all_books(db, user_id):
@@ -36,7 +36,7 @@ def get_a_book(db, user_id, book_id):
     return jsonable_encoder(book)
 
 
-@reguler_user_exception
+@reguler_user_permission
 def create_book_item(db, user_id, book):
     user = usercrud.get_user_by_userid(db, user_id)
 
@@ -44,7 +44,7 @@ def create_book_item(db, user_id, book):
         return {"message": "book added succesfully"}
 
 
-@reguler_user_exception
+@reguler_user_permission
 def edit_book_item(db, user_id, book_id, book):
     user = usercrud.get_user_by_userid(db, user_id)
 
@@ -55,7 +55,7 @@ def edit_book_item(db, user_id, book_id, book):
                         "error": "Item not found"})
 
 
-@reguler_user_exception
+@reguler_user_permission
 def delete_book_item(db, user_id, book_id):
     if crud.remove_book_item(db, book_id):
         return {"message": "item deleted succesfully"}

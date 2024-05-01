@@ -1,23 +1,9 @@
-from apps.users import crud,constant
 
 from traceback import print_exception
 from fastapi import Request,HTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-# regular user exception decorator
-def reguler_user_exception(func):
-  def wrapper(*args,**kwargs):
-    user = crud.get_user_by_userid(args[0],args[1])
-    
-    if user.user_type == constant.UserEnum.READER:
-        raise HTTPException(status_code=401,detail={"error":"You are not allowed to perform this action"})
-    
-    result = func(*args,**kwargs)
-    return result
-  return wrapper
-
-#gobal Exceptionhandler middleware
 class ExceptionHandlerMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         try:
