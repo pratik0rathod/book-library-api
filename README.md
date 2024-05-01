@@ -10,9 +10,9 @@
 ## Run Server
 - **Create Virtual environment**
 
-        $ python3 -m venv /path/to/new/virtual/environment`
+        > python3 -m venv /path/to/new/virtual/environment
 
-        $ source /path/to/new/virtual/environment/bin/activate`
+        > source /path/to/new/virtual/environment/bin/activate
 
 
 - **Install dependencies**
