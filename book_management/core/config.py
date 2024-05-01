@@ -1,16 +1,17 @@
 from sqlalchemy import URL
-
+from typing import Optional,Any
 from pydantic_settings import BaseSettings,SettingsConfigDict
 from pydantic.types import SecretStr
 
+from pydantic import PostgresDsn, field_validator, ValidationInfo
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
     
-    POSTGRES_DRIVER:str
     POSTGRES_USER:str
-    POSTGRES_PASSWORD:SecretStr
+    POSTGRES_PASSWORD:str
     POSTGRES_HOST:str
     POSTGRES_DB :str
     
@@ -18,17 +19,19 @@ class Settings(BaseSettings):
     JWT_ALGORITHM : str
     
     SESSION_SECRET:SecretStr
+    DATABASE_URI: Optional[PostgresDsn] = None
     
+    @field_validator("DATABASE_URI", mode="before")
+    def assemble_db_connection(cls, v: Optional[str], values: ValidationInfo) -> Any:
+        if isinstance(v, str):
+            return v
+        print("Creating DB_URI from .env file ...")
+        return PostgresDsn.build(
+            scheme="postgresql",
+            username=values.data.get("POSTGRES_USER"),
+            password=values.data.get("POSTGRES_PASSWORD"),
+            host=values.data.get("POSTGRES_HOST"),
+            path=f"{values.data.get('POSTGRES_DB') or ''}",
+        )  
+        
 settings = Settings()
-
-def get_db_url():
-    return URL.create(
-        drivername=settings.POSTGRES_DRIVER,
-        username=settings.POSTGRES_USER,
-        password=settings.POSTGRES_PASSWORD,
-        host=settings.POSTGRES_HOST,
-        database=settings.POSTGRES_DB,
-    )
-
-def get_db_url_str():
-    return f"{settings.POSTGRES_DRIVER}://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD.get_secret_value()}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}"

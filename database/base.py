@@ -6,7 +6,7 @@ from datetime import datetime
 
 from book_management.core import config
 
-engine =  create_engine(url=config.get_db_url_str())
+engine =  create_engine(url=config.settings.DATABASE_URI.unicode_string())
 
 session_local = sessionmaker(bind=engine,autoflush=False,autocommit=False)
  

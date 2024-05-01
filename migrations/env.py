@@ -14,7 +14,7 @@ from alembic import context
 # from . import base
 
 
-from book_management.core.config import get_db_url_str
+from book_management.core.config import settings
 
 from apps.users.models import base
 from apps.users.models import base
@@ -28,7 +28,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url',get_db_url_str())
+config.set_main_option('sqlalchemy.url',settings.DATABASE_URI.unicode_string())
 
 # add your model's MetaData object here
 # for 'autogenerate' support
