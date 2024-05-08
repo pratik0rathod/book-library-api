@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from apps.users import schema, models, crud, auth
 from book_management.core.hash import hash_password, verify_password
-from book_management.core.permission import staff_permission
+from book_management.core.permission import role_permissions
+from book_management.core.constant import UserEnum
 
 
 def register_user(db: Session, user: schema.UserRegister):
@@ -37,9 +38,10 @@ def login_user(db: Session, user: schema.LoginUser):
             if not user_obj.is_active or user_obj.soft_delete:
                 raise HTTPException(
                     status_code=400,
-                    detail={"error": "account is disabled or deleted please" +
-                                     " contact libary staff or administrator"
-                            }
+                    detail={
+                        "error": "account is disabled or deleted please" \
+                        " contact libary staff or administrator"
+                    }
                 )
 
             return auth.create_token(({'sub': str(user_obj.id)}))
@@ -71,7 +73,7 @@ def delete_me(db: Session, userid: int):
     return {"message": "account deleted sucesfully"}
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def get_all_reader(db: Session, userid: int):
     users_obj = crud.get_all_reader(db)
     if users_obj is not None:
@@ -82,7 +84,7 @@ def get_all_reader(db: Session, userid: int):
             "error": "There are no readers"})
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def get_a_reader(db: Session, user_id: int, reader_id):
     users_obj = crud.get_a_reader(db, reader_id)
     if users_obj is not None:
@@ -93,7 +95,7 @@ def get_a_reader(db: Session, user_id: int, reader_id):
             "error": "User does not exist"})
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def set_status(db, user_id, reader_id, active):
     if crud.set_status(db, reader_id, active):
         return {"message": "user updated sucessfully"}
@@ -103,7 +105,7 @@ def set_status(db, user_id, reader_id, active):
             "error": "User does not exist"})
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def search_reader(db, user_id, filers):
     results = crud.search_reader(db, filers)
 

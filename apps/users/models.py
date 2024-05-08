@@ -2,7 +2,8 @@ from datetime import date
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from apps.users.constant import UserEnum
+from book_management.core.constant import UserEnum
+
 from database.base import Base
 
 

@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from apps.books import crud, schema, filters
 from apps.users import crud as user_crud, models as user_model
-from book_management.core.permission import staff_permission
+from book_management.core.permission import role_permissions
+from book_management.core.constant import UserEnum
 
 
 def get_all_books(db, user_id):
@@ -36,7 +37,7 @@ def get_a_book(db, user_id, book_id):
     return jsonable_encoder(book)
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def create_book_item(db, user_id, book):
     user = user_crud.get_user_by_userid(db, user_id)
 
@@ -44,7 +45,7 @@ def create_book_item(db, user_id, book):
         return {"message": "book added succesfully"}
 
 
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def edit_book_item(db, user_id, book_id, book):
     user = user_crud.get_user_by_userid(db, user_id)
 
@@ -56,8 +57,7 @@ def edit_book_item(db, user_id, book_id, book):
         detail={"error": "Item not found"}
     )
 
-
-@staff_permission
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def delete_book_item(db, user_id, book_id):
     if crud.remove_book_item(db, book_id):
         return {"message": "item deleted succesfully"}
@@ -67,7 +67,7 @@ def delete_book_item(db, user_id, book_id):
         detail={"error": "item not found"}
     )
 
-
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 def borrow_book(db, user_id, book_id):
     users_obj = user_crud.get_a_reader(db, user_id)
     book_obj = crud.get_a_books(db, book_id)
