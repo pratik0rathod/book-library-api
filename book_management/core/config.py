@@ -1,9 +1,7 @@
-from sqlalchemy import URL
 from typing import Optional, Any
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic.types import SecretStr
 
 from pydantic import PostgresDsn, field_validator, ValidationInfo
+from pydantic.types import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

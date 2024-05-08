@@ -1,6 +1,8 @@
-from apps.users import models
-from fastapi_filter.contrib.sqlalchemy import Filter
 from typing import Optional
+
+from fastapi_filter.contrib.sqlalchemy import Filter
+
+from apps.users import models
 
 
 class FilterModelUser(Filter):

@@ -1,17 +1,19 @@
-from apps.users import schema, models, crud, auth
-from pydantic import TypeAdapter
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
+
+from apps.users import schema, models, crud, auth
 from book_management.core.hash import hash_password, verify_password
 from book_management.core.permission import staff_permission
 
 
 def register_user(db: Session, user: schema.UserRegister):
     new_user = models.Users(
-        username=user.username, email=user.email,
+        username=user.username,
+        email=user.email,
         birth_date=user.birth_date,
-        password=hash_password(user.password))
+        password=hash_password(user.password)
+    )
     errors: dict[str, str] = dict()
 
     if crud.check_username(db, new_user.username):
@@ -32,18 +34,20 @@ def login_user(db: Session, user: schema.LoginUser):
 
     if user_obj is not None:
         if verify_password(user.password, user_obj.password):
-
             if not user_obj.is_active or user_obj.soft_delete:
                 raise HTTPException(
-                    status_code=400, detail={
-                        "error": "account is disabled or deleted please" +
-                        " contact libary staff or administrator"})
+                    status_code=400,
+                    detail={"error": "account is disabled or deleted please" +
+                                     " contact libary staff or administrator"
+                            }
+                )
 
             return auth.create_token(({'sub': str(user_obj.id)}))
 
     raise HTTPException(
-        status_code=400, detail={
-            "error": "Username or password wrong"})
+        status_code=400,
+        detail={"error": "Username or password wrong"}
+    )
 
 
 def get_me(db: Session, userid: int):
@@ -57,9 +61,11 @@ def delete_me(db: Session, userid: int):
     for history in user_obj.book_transaction:
         if history.return_date is None:
             raise HTTPException(
-                status_code=400, detail={
+                status_code=400,
+                detail={
                     "error": "Book transaction still open please return books or contact staff"
-                })
+                }
+            )
 
     crud.set_delete(db, user_obj)
     return {"message": "account deleted sucesfully"}
@@ -67,7 +73,6 @@ def delete_me(db: Session, userid: int):
 
 @staff_permission
 def get_all_reader(db: Session, userid: int):
-
     users_obj = crud.get_all_reader(db)
     if users_obj is not None:
         return jsonable_encoder(users_obj)

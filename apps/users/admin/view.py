@@ -1,18 +1,15 @@
-from database import base
 from typing import Any, Coroutine, Dict
 
-from book_management.core.hash import hash_password
-
-from apps.users import models as user_model, crud
-
 from fastapi.requests import Request
-
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
+from apps.users import models as user_model, crud
+from book_management.core.hash import hash_password
+from database import base
+
 
 class UserView(ModelView):
-
     exclude_fields_from_list = [
         user_model.Users.password
     ]
@@ -37,7 +34,7 @@ class UserView(ModelView):
         user_model.Users.password
     ]
 
-    # overide the default query
+    # override the default query
     def get_list_query(self):
         return super().get_list_query().where(
             user_model.Users.user_type != user_model.UserEnum.ADMIN
@@ -50,7 +47,8 @@ class UserView(ModelView):
 
     async def before_create(
             self, request: Request, data: Dict[str, Any],
-            obj: user_model.Users) -> Coroutine[Any, Any, None]:
+            obj: user_model.Users
+    ) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
         with base.session_local() as db:
@@ -73,7 +71,8 @@ class UserView(ModelView):
     async def before_edit(
             self, request: Request,
             data: Dict[str, Any],
-            obj: user_model.Users) -> Coroutine[Any, Any, None]:
+            obj: user_model.Users
+    ) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
 
         with base.session_local() as db:

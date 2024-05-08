@@ -1,14 +1,11 @@
-
-import book_management.core.config as config
-
+from datetime import timedelta, datetime, timezone
 from typing import Annotated
 
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
-
-from datetime import timedelta, datetime, timezone
-
 from jose import JWTError, jwt
+
+import book_management.core.config as config
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='user/login')
 
@@ -22,12 +19,10 @@ def create_token(data: dict, expire_time: timedelta | None = None):
 
     if expire_time:
         expire = datetime.now(timezone.utc) + timedelta(expire_time)
-
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
 
     to_encode.update({"exp": expire})
-
     token = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
     return {'access_token': token}

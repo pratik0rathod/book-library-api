@@ -1,6 +1,6 @@
-from apps.books import models as book_model
-
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
+
+from apps.books import models as book_model
 
 
 class BookView(ModelView):
@@ -15,7 +15,7 @@ class BookView(ModelView):
     ]
 
 
-class BookTranscationView(ModelView):
+class BookTransactionView(ModelView):
     exclude_fields_from_edit = [
         book_model.BookTransaction.created_on,
         book_model.BookTransaction.last_updated

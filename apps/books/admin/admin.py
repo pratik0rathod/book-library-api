@@ -1,6 +1,6 @@
-from apps.books.schema import BooksSchema, BookTransactionSchema
+from apps.books.admin.view import BookTransactionView, BookView
 from apps.books.models import Books, BookTransaction
-from apps.books.admin.view import BookTranscationView, BookView
+from apps.books.schema import BooksSchema, BookTransactionSchema
 
 book_view = BookView(
     model=Books,
@@ -9,7 +9,7 @@ book_view = BookView(
     pydantic_model=BooksSchema
 )
 
-book_transcation_view = BookTranscationView(
+book_transaction_view = BookTransactionView(
     model=BookTransaction,
     label="Borrow History",
     icon="fa fa-history",

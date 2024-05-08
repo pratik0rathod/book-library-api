@@ -1,12 +1,12 @@
-from apps.users.models import Users
-from . import base
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from typing import Optional
 from datetime import date, timedelta
+from typing import Optional
 
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import ForeignKey
 from sqlalchemy import String
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import mapped_column, Mapped, relationship
+
+from . import base
 
 
 class Books(base.Base):

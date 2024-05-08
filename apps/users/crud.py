@@ -1,7 +1,8 @@
+from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from apps.users import models, schema, filters
-from pydantic import EmailStr
+
+from apps.users import models, filters
 
 
 def add_user(db: Session, UserObj: models.Users):
@@ -84,7 +85,6 @@ def get_a_reader(db: Session, reader_id: int):
 
 
 def set_status(db: Session, reader_id: int, status: bool):
-
     obj = db.query(models.Users).filter(
         models.Users.user_type == models.UserEnum.READER,
         models.Users.id == reader_id

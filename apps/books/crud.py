@@ -1,10 +1,11 @@
-from sqlalchemy.orm import Session
-from apps.books import models, schema, filters
-from apps.users.models import Users
+import datetime
 
 from sqlalchemy import update, select
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
-import datetime
+
+from apps.books import models, schema, filters
+from apps.users.models import Users
 
 
 def get_books(db: Session):
@@ -19,8 +20,8 @@ def get_a_books(db: Session, book_id):
 
 def create_book_item(
         db: Session, user: Users,
-        book: schema.BooksSchema):
-
+        book: schema.BooksSchema
+):
     book_obj = models.Books(
         **book.model_dump(),
         added_by=user.id,
@@ -45,8 +46,8 @@ def remove_book_item(db: Session, book_id: int):
 
 def update_book(
         db: Session, user: Users,
-        book: schema.BooksSchema, book_id: int):
-
+        book: schema.BooksSchema, book_id: int
+):
     udq = update(models.Books).where(
         models.Books.id ==
         book_id
@@ -71,7 +72,11 @@ def borrow_book(db: Session, user: Users, book: models.Books):
     if book_transaction is not None:
         return False
 
-    book_transaction = models.BookTransaction(user_id=user.id, book_id=book.id)
+    book_transaction = models.BookTransaction(
+        user_id=user.id,
+        book_id=book.id
+    )
+
     book.is_available = False
 
     db.add(book)
@@ -101,15 +106,17 @@ def return_book(db: Session, user: Users, book: models.Books):
 
 
 def return_book_history(db: Session, user_id):
-    history = db.query(
-        models.BookTransaction
-    ).filter(
-        models.BookTransaction.user_id == user_id
-    ).options(
-        joinedload(
-            models.BookTransaction.book
-        )
-    ).all()
+    history = (
+        db.query(
+            models.BookTransaction
+        ).filter(
+            models.BookTransaction.user_id == user_id
+        ).options(
+            joinedload(
+                models.BookTransaction.book
+            )
+        ).all()
+    )
 
     return history
 

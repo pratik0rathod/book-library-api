@@ -1,12 +1,12 @@
-from . import base
+from datetime import date
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Enum
-from datetime import date
+
 from apps.users.constant import UserEnum
+from database.base import Base
 
 
-class Users(base.Base):
+class Users(Base):
     __tablename__ = "users"
 
     username: Mapped[str] = mapped_column(unique=True)

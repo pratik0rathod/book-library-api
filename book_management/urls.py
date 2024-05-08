@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from apps.users.urls import users_routers
 from apps.books.urls import book_router
+from apps.users.urls import users_routers
 
 urls = APIRouter()
 

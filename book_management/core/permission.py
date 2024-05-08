@@ -1,6 +1,7 @@
 from apps.users import crud, constant
 from fastapi import HTTPException
 
+
 def staff_permission(func):
     def wrapper(*args, **kwargs):
         user = crud.get_user_by_userid(args[0], args[1])

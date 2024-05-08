@@ -1,10 +1,10 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
 
-from apps.users import auth
-from apps.books import functions, schema
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from apps.books import functions, schema
+from apps.users import auth
 from database.base import get_db
 
 reader_router = APIRouter(
@@ -16,7 +16,8 @@ reader_router = APIRouter(
 async def borrow_book(
         db: Annotated[Session, Depends(get_db)],
         user_id: Annotated[auth.get_user, Depends()],
-        book_id: int):
+        book_id: int
+):
     return functions.borrow_book(db, user_id, book_id)
 
 
@@ -24,7 +25,8 @@ async def borrow_book(
 async def return_book(
         db: Annotated[Session, Depends(get_db)],
         user_id: Annotated[auth.get_user, Depends()],
-        book_id: int):
+        book_id: int
+):
     return functions.return_book(db, user_id, book_id)
 
 
@@ -33,5 +35,6 @@ async def return_book(
     response_model=list[schema.BookTransactionSchema])
 async def return_book_history(
         db: Annotated[Session, Depends(get_db)],
-        user_id: Annotated[auth.get_user, Depends()]):
+        user_id: Annotated[auth.get_user, Depends()]
+):
     return functions.return_book_history(db, user_id)
