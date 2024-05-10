@@ -27,4 +27,10 @@
 
 - **Run Server**
 
-        > uvicorn book_management.main:app --reload
+~~uvicorn book_management.main:app~~
+      
+- for de
+> fastapi dev .\book_management\main.py
+      
+- for production
+> fastapi dev .\book_management\main.py

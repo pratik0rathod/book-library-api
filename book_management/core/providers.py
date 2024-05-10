@@ -18,13 +18,12 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
             request: Request, response: Response) -> Response:
 
         with base.session_local() as db:
-            user: models.Users = users_actions.filter_by(
-                db, username=username,
+            user:models.Users = users_actions.filter_by(
+                db,username=username,
                 raise_exc=False
             )
-
-            if user.user_type == UserEnum.ADMIN and user.is_active:
-                if user is not None:
+            if user is not None:
+                if user.user_type == UserEnum.ADMIN and user.is_active:
                     if verify_password(password, user.password):
                         request.session.update({"userid": user.id})
                         return response
