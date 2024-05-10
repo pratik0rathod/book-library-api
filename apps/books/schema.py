@@ -15,14 +15,17 @@ class BooksSchema(BaseModel):
     ratings: float
 
 
+class AddBookSchema(BooksSchema):
+    added_by: int
+
 class BooksSchemaExtra(BooksSchema):
     id: int
     added_by: int
     created_on: datetime
     last_updated: datetime
 
-
 class BookInTransaction(BaseModel):
+    id:int
     title: str
     author: str
     genre: list[str]

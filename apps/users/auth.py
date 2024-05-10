@@ -4,9 +4,10 @@ from typing import Annotated
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-
+from sqlalchemy.orm import Session
+from database.base import get_db
 import book_management.core.config as config
-
+from apps.users.crud import users_actions
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='user/login')
 
 JWT_SECRET = config.settings.JWT_SECRET_KEY.get_secret_value()
@@ -32,6 +33,10 @@ def decode_token(token):
     return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 
 
+def get_user_obj(db:Session,user_id: int):
+    return users_actions.get(db, user_id)
+
+
 def get_user(token: Annotated[str, Depends(oauth_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -40,9 +45,19 @@ def get_user(token: Annotated[str, Depends(oauth_scheme)]):
     )
 
     try:
+        db = next(get_db()) 
         data = decode_token(token)
-        return data['sub']
+        user = get_user_obj(db=db,user_id=data['sub'])
+        return user
 
     except JWTError as e:
-        print(e)
         raise credentials_exception
+    
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                'error': 'something went wrong from our side'
+            }
+        )

@@ -4,9 +4,11 @@ from fastapi.requests import Request
 from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
-from apps.users import models as user_model, crud
+from apps.users import models as user_model
 from book_management.core.hash import hash_password
 from database import base
+
+from apps.users.crud import users_actions
 
 
 class UserView(ModelView):
@@ -52,10 +54,10 @@ class UserView(ModelView):
         errors: Dict[str, str] = dict()
 
         with base.session_local() as db:
-            if crud.check_username(db, data['username']):
+            if users_actions.filter_by(db, username=data['username'], raise_exc=False):
                 errors['username'] = 'user with this username is already exist'
 
-            if crud.check_email(db, data['email']):
+            if users_actions.filter_by(db, email=data['email'], raise_exc=False):
                 errors['email'] = 'user with this email id already exist'
 
             if len(errors) > 0:
@@ -66,7 +68,7 @@ class UserView(ModelView):
         obj.password = data['password']
 
         obj.added_by_admin = True
-        return super().before_create(request, data, obj)
+        return await super().before_create(request, data, obj)
 
     async def before_edit(
             self, request: Request,
@@ -74,19 +76,19 @@ class UserView(ModelView):
             obj: user_model.Users
     ) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
-
+        
         with base.session_local() as db:
 
-            if crud.check_username_update(db, data['username'], obj.id):
-                errors['username'] = 'user with this use,rname is already exist'
-
-            if crud.check_email_update(db, data['email'], obj.id):
+            if users_actions.filter_by(db, username=data['username'], raise_exc=False):
+                errors['username'] = 'user with this username is already exist'
+            
+            if users_actions.filter_by(db, email=data['email'], raise_exc=False):
                 errors['email'] = 'user with this email id already exist'
 
             if len(errors) > 0:
                 raise FormValidationError(errors)
 
-        return super().before_edit(request, data, obj)
+        return await super().before_edit(request, data, obj)
 
     async def edit(self, request: Request, pk: Any, data: Dict[str, Any]) -> Any:
         obj = await self.find_by_pk(request, pk)

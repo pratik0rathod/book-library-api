@@ -6,8 +6,7 @@ from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from . import base
-
+from database import base
 
 class Books(base.Base):
     __tablename__ = "books"

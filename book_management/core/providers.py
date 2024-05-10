@@ -4,9 +4,11 @@ from starlette_admin.auth import AdminConfig, AdminUser
 from starlette_admin.auth import AuthProvider
 from starlette_admin.exceptions import LoginFailed
 
-from apps.users import models, crud
+from apps.users import models
 from book_management.core.hash import verify_password
 from database import base
+from book_management.core.constant import UserEnum
+from apps.users.crud import users_actions
 
 
 class AdminUsernameAndPasswordProvider(AuthProvider):
@@ -16,9 +18,12 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
             request: Request, response: Response) -> Response:
 
         with base.session_local() as db:
-            user = crud.get_user_by_username(db, username)
+            user: models.Users = users_actions.filter_by(
+                db, username=username,
+                raise_exc=False
+            )
 
-            if user.user_type == models.UserEnum.ADMIN and user.is_active:
+            if user.user_type == UserEnum.ADMIN and user.is_active:
                 if user is not None:
                     if verify_password(password, user.password):
                         request.session.update({"userid": user.id})
@@ -28,8 +33,10 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
 
     async def is_authenticated(self, request) -> bool:
         with base.session_local() as db:
-            user = crud.get_user_by_userid(
-                db, request.session.get("userid", None)
+            user = users_actions.get(
+                db,
+                request.session.get("userid", None),
+                raise_exc=False
             )
 
         if user is not None:
