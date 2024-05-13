@@ -8,6 +8,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from database import base
 
+
 class Books(base.Base):
     __tablename__ = "books"
 
@@ -32,7 +33,7 @@ class BookTransaction(base.Base):
     book_id: Mapped[int] = mapped_column(ForeignKey("books.id"))
     borrow_date: Mapped[date] = mapped_column(default=date.today())
     due_date: Mapped[date] = mapped_column(
-        default=(date.today()+timedelta(days=28)))
+        default=(date.today() + timedelta(days=28)))
     return_date: Mapped[date] = mapped_column(nullable=True)
 
     user = relationship("Users", back_populates="book_transaction")

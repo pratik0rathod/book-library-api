@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
+from book_management.core.admin import admin
 from book_management.core.config import settings
 from book_management.core.exceptions import ExceptionHandlerMiddleware
-from .core.admin import admin
-from .urls import urls
+from book_management.urls import urls
 
 app = FastAPI()
 

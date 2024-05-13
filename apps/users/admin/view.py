@@ -5,10 +5,9 @@ from starlette_admin.contrib.sqla.ext.pydantic import ModelView
 from starlette_admin.exceptions import FormValidationError
 
 from apps.users import models as user_model
+from apps.users.crud import users_actions
 from book_management.core.hash import hash_password
 from database import base
-
-from apps.users.crud import users_actions
 
 
 class UserView(ModelView):
@@ -76,12 +75,12 @@ class UserView(ModelView):
             obj: user_model.Users
     ) -> Coroutine[Any, Any, None]:
         errors: Dict[str, str] = dict()
-        
+
         with base.session_local() as db:
 
             if users_actions.filter_by(db, username=data['username'], raise_exc=False):
                 errors['username'] = 'user with this username is already exist'
-            
+
             if users_actions.filter_by(db, email=data['email'], raise_exc=False):
                 errors['email'] = 'user with this email id already exist'
 

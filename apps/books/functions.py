@@ -5,14 +5,11 @@ from fastapi.exceptions import HTTPException
 from pydantic import TypeAdapter
 from sqlalchemy.orm import Session
 
-
-from book_management.core.permission import role_permissions
-from book_management.core.constant import UserEnum
-from book_management.core.constant import UserEnum
-
 from apps.books import schema, filters, models
-from apps.users.models import Users
 from apps.books.crud import book_action, book_transaction_action
+from apps.users.models import Users
+from book_management.core.constant import UserEnum
+from book_management.core.permission import role_permissions
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
@@ -61,10 +58,10 @@ def create_book_item(db: Session, user: Users, book: schema.BooksSchema):
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
 def edit_book_item(
-    db: Session,
-    user: Users,
-    book_id: int,
-    book: schema.BooksSchema
+        db: Session,
+        user: Users,
+        book_id: int,
+        book: schema.BooksSchema
 ):
     book_obj = book_action.get(db, book_id)
     book_in = book_action.update(db, db_obj=book_obj, obj_in=book)
@@ -78,9 +75,9 @@ def delete_book_item(db: Session, user: Users, book_id):
 
 
 def search_book(
-    db: Session,
-    user: Users,
-    search: filters.FilterModelBook
+        db: Session,
+        user: Users,
+        search: filters.FilterModelBook
 ):
     results = book_action.get_multi(db, filter_data=search, sorting=False)
 

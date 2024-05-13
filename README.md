@@ -29,7 +29,7 @@
 
 ~~uvicorn book_management.main:app~~
       
-- for de
+- for dev
 > fastapi dev .\book_management\main.py
       
 - for production

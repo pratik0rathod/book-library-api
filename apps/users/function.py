@@ -2,16 +2,14 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from apps.users import schema, models, crud, auth, filters
+from apps.users import schema, models, auth, filters
+from apps.users.crud import users_actions
+from book_management.core.constant import UserEnum
 from book_management.core.hash import hash_password, verify_password
 from book_management.core.permission import role_permissions
-from book_management.core.constant import UserEnum
-
-from apps.users.crud import users_actions
 
 
 def register_user(db: Session, user: schema.UserRegister):
-
     new_user = {
         'username': user.username,
         'email': user.email,
@@ -49,7 +47,7 @@ def login_user(db: Session, user: schema.LoginUser):
                     status_code=400,
                     detail={
                         "error": "account is disabled or deleted please"
-                        " contact libary staff or administrator"
+                                 " contact libary staff or administrator"
                     }
                 )
 
