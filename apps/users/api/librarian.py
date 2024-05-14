@@ -14,16 +14,16 @@ from book_management.core.constant import UserEnum
 librarian_router = APIRouter(prefix='/readers', tags=['Librarian'])
 
 
-@librarian_router.get("/all", response_model=list[schema.RetriveUser] |dict)
+@librarian_router.get("/all", response_model=list[schema.RetriveUser])
 @role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_all_readers(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
 ):
-    return await function.get_all_reader(db=db, user=user)
+    return await function.get_all_reader(db=db)
 
 
-@librarian_router.get("/search", response_model=list[schema.RetriveUser]|dict)
+@librarian_router.get("/search", response_model=list[schema.RetriveUser])
 @role_permissions(roles=[UserEnum.LIBRARIAN])
 async def search_reader(
         db: Annotated[AsyncSession, Depends(get_async_db)],
@@ -35,8 +35,7 @@ async def search_reader(
 ):
     return await function.search_reader(
         db=db,
-        user=user,
-        filers=filers
+        filers=filers,
     )
 
 
@@ -49,7 +48,6 @@ async def get_a_reader(
 ):
     return await function.get_a_reader(
         db=db,
-        user=user,
         reader_id=reader_id
     )
 
@@ -62,7 +60,7 @@ async def set_status(
         reader_id: int, active: bool = True
 ):
     return await function.set_status(
-        db=db, user=user,
+        db=db,
         reader_id=reader_id,
         active=active
     )

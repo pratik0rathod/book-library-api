@@ -20,10 +20,10 @@ async def register_user(db: AsyncSession, user: schema.UserRegister):
     errors: dict[str, str] = dict()
 
     if await users_actions.filter_by(db, username=user.username, raise_exc=False):
-        errors["username_error"] = "Username is already taken"
+        errors["user_name_error"] = "Username is already taken"
 
     if await users_actions.filter_by(db, email=user.email, raise_exc=False):
-        errors["useremail_error"] = "User with this email address is already registed"
+        errors["user_email_error"] = "User with this email address is already register"
 
     if len(errors) > 0:
         raise HTTPException(status_code=400, detail={"errors": errors})
@@ -46,8 +46,7 @@ async def login_user(db: AsyncSession, user):
                 raise HTTPException(
                     status_code=400,
                     detail={
-                        "error": "account is disabled or deleted please"
-                                 " contact libary staff or administrator"
+                        "error": "account is disabled or deleted please contact library staff or administrator"
                     }
                 )
 
@@ -59,7 +58,7 @@ async def login_user(db: AsyncSession, user):
     )
 
 
-async def get_me(db: AsyncSession, user: models.Users):
+async def get_me(user: models.Users):
     return jsonable_encoder(user)
 
 
@@ -91,26 +90,22 @@ async def delete_me(db: AsyncSession, user: models.Users):
     return {"message": "account deleted successfully"}
 
 
-async def get_all_reader(db: AsyncSession, user: models.Users):
+async def get_all_reader(db: AsyncSession):
     users_obj = await users_actions.get_multi(
         db,
         filters=False,
         sorting=False,
     )
-
-    if users_obj is not None:
-        return jsonable_encoder(users_obj)
-
-    return {"message": "no user in database"}
+    return jsonable_encoder(users_obj)
 
 
-async def get_a_reader(db: AsyncSession, user: models.Users, reader_id: int):
+async def get_a_reader(db: AsyncSession, reader_id: int):
     users_obj = await users_actions.get(db, reader_id)
     if users_obj is not None:
         return jsonable_encoder(users_obj)
 
 
-async def set_status(db: AsyncSession, user: models.Users, reader_id: int, active: bool):
+async def set_status(db: AsyncSession, reader_id: int, active: bool):
     users_obj = await users_actions.get(db, reader_id)
     user_in = await users_actions.update(
         db,
@@ -123,14 +118,11 @@ async def set_status(db: AsyncSession, user: models.Users, reader_id: int, activ
     return user_in
 
 
-async def search_reader(db: AsyncSession, user: models.Users, filers: filters.FilterModelUser):
+async def search_reader(db: AsyncSession, filers: filters.FilterModelUser):
     results = await users_actions.get_multi(
         db,
         filters=True,
         filter_data=filers,
         sorting=False,
     )
-
-    if len(results) == 0:
-        return {"message": "No item found related to that term"}
     return jsonable_encoder(results)

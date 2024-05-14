@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from apps.books import functions
+from apps.books import functions,schema
 from apps.users import auth
 from database.base import get_async_db
 
@@ -32,7 +32,7 @@ async def return_book(
 
 @reader_router.get(
     "/books/history",
-    # response_model=list[schema.BookTransactionSchema]
+    response_model=list[schema.BookTransactionSchema]
 )
 async def return_book_history(
         db: Annotated[AsyncSession, Depends(get_async_db)],

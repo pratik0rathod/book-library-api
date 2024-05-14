@@ -8,9 +8,7 @@ def role_permissions(roles: list | None | str):
     def decorator_perms(func):
         @wraps(func)
         async def wrapper_perms(*args, **kwargs):
-            print("here3")
             user: Users = kwargs['user']
-
             if user.user_type not in roles:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,

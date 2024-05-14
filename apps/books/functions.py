@@ -9,10 +9,9 @@ from apps.books import schema, filters, models
 from apps.books.crud import book_action, book_transaction_action
 from apps.users.models import Users
 from book_management.core.constant import UserEnum
-from book_management.core.permission import role_permissions
 
 
-async def count_books(db: AsyncSession, user: Users):
+async def count_books(db: AsyncSession):
     return await book_action.count(db)
 
 
@@ -54,7 +53,6 @@ async def create_book_item(db: AsyncSession, user: Users, book: schema.BooksSche
 
 async def edit_book_item(
         db: AsyncSession,
-        user: Users,
         book_id: int,
         book: schema.BooksSchema
 ):
@@ -63,7 +61,7 @@ async def edit_book_item(
     return book_in
 
 
-async def delete_book_item(db: AsyncSession, user: Users, book_id):
+async def delete_book_item(db: AsyncSession, book_id):
     if await book_action.hard_delete(db, id=book_id):
         return {"message": f"item {book_id} deleted successfully"}
 
@@ -85,22 +83,15 @@ async def search_book(
     return jsonable_encoder(results)
 
 
-async def _get_book_transaction_obj(db: AsyncSession, book_obj: models.Books, user: Users):
-    return await book_transaction_action.filter_by(
+async def borrow_book(db: AsyncSession, user: Users, book_id):
+    book_obj = await book_action.get(db, book_id)
+
+    book_transaction_obj = await book_transaction_action.filter_by(
         db,
         book_id=book_obj.id,
         user_id=user.id,
         return_date=None,
         raise_exc=False
-    )
-
-
-async def borrow_book(db: AsyncSession, user: Users, book_id):
-    book_obj = await book_action.get(db, book_id)
-    book_transaction_obj = await _get_book_transaction_obj(
-        db,
-        book_obj=book_obj,
-        user=user
     )
 
     if book_transaction_obj is None:
@@ -134,16 +125,21 @@ async def borrow_book(db: AsyncSession, user: Users, book_id):
 
     raise HTTPException(
         status_code=400,
-        detail={"error": " your transaction didn't ended please contact admin"}
+        detail={
+            "error": "Your transaction didn't ended please contact admin"
+        }
     )
 
 
 async def return_book(db: AsyncSession, user: Users, book_id):
     book_obj = await book_action.get(db, book_id)
-    book_transaction_obj = await _get_book_transaction_obj(
+
+    book_transaction_obj = await book_transaction_action.filter_by(
         db,
-        book_obj=book_obj,
-        user=user
+        book_id=book_obj.id,
+        user_id=user.id,
+        return_date=None,
+        raise_exc=False
     )
 
     if book_transaction_obj is not None:
@@ -183,8 +179,5 @@ async def return_book_history(db: AsyncSession, user: Users):
         user_id=user.id,
         joined_load=models.BookTransaction.book
     )
-
-    adapter = TypeAdapter(list[schema.BookTransactionSchema])
-    history = adapter.dump_python(history)
-
+    
     return jsonable_encoder(history)

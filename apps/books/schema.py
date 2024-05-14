@@ -37,5 +37,5 @@ class BookTransactionSchema(BaseModel):
     id: int
     borrow_date: date
     due_date: date
-    return_date: date
+    return_date: date | None
     book: BookInTransaction

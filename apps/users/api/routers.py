@@ -29,12 +29,9 @@ async def login_user(
 
 
 @user_router.get("/me", response_model=schema.RetriveUser)
-async def get_me(
-        db: Annotated[AsyncSession, Depends(get_async_db)],
-        user: Annotated[auth.get_user, Depends()]
-):
+async def get_me(user: Annotated[auth.get_user, Depends()]):
 
-    return await function.get_me(db=db, user=user)
+    return await function.get_me(user=user)
 
 
 @user_router.delete("/delete/me")
