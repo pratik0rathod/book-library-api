@@ -8,10 +8,14 @@ from database.base import get_async_db
 
 from apps.users import function, schema, auth, filters
 
+from book_management.core.permission import role_permissions
+from book_management.core.constant import UserEnum
+
 librarian_router = APIRouter(prefix='/readers', tags=['Librarian'])
 
 
 @librarian_router.get("/all", response_model=list[schema.RetriveUser] |dict)
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_all_readers(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -20,6 +24,7 @@ async def get_all_readers(
 
 
 @librarian_router.get("/search", response_model=list[schema.RetriveUser]|dict)
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def search_reader(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -36,6 +41,7 @@ async def search_reader(
 
 
 @librarian_router.get("/{reader_id}", response_model=schema.RetriveUser)
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_a_reader(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -49,6 +55,7 @@ async def get_a_reader(
 
 
 @librarian_router.patch("/{reader_id}/set-status")
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def set_status(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],

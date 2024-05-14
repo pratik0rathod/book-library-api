@@ -6,6 +6,8 @@ from apps.books import functions
 from apps.books import schema, filters
 from apps.users import auth
 from database.base import get_async_db
+from book_management.core.permission import role_permissions
+from book_management.core.constant import UserEnum
 
 books_router = APIRouter(
     prefix="/books",
@@ -14,6 +16,7 @@ books_router = APIRouter(
 
 
 @books_router.get("/count")
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def count_all_books(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()]
@@ -21,9 +24,8 @@ async def count_all_books(
     return await functions.count_books(db=db, user=user)
 
 
-@books_router.get(
-    "/all",
-    response_model=list[schema.BooksSchemaExtra] | list[schema.BooksSchema])
+@books_router.get("/all", response_model=list[schema.BooksSchemaExtra] | list[schema.BooksSchema])
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_all_books(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()]
@@ -31,10 +33,8 @@ async def get_all_books(
     return await functions.get_all_books(db=db, user=user)
 
 
-@books_router.get(
-    "/get/{book_id}",
-    response_model=schema.BooksSchemaExtra | schema.BooksSchema
-)
+@books_router.get("/get/{book_id}",response_model=schema.BooksSchemaExtra | schema.BooksSchema)
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_a_book(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -57,6 +57,7 @@ async def search_book(
 
 
 @books_router.post("/create")
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def create_book_item(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -66,6 +67,7 @@ async def create_book_item(
 
 
 @books_router.put("/edit/{book_id}")
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def edit_book_item(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
@@ -75,6 +77,7 @@ async def edit_book_item(
 
 
 @books_router.delete("/delete/{book_id}")
+@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def delete_book_item(
         db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],

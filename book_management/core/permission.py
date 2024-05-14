@@ -7,8 +7,10 @@ from fastapi import status
 def role_permissions(roles: list | None | str):
     def decorator_perms(func):
         @wraps(func)
-        def wrapper_perms(*args, **kwargs):
+        async def wrapper_perms(*args, **kwargs):
+            print("here3")
             user: Users = kwargs['user']
+
             if user.user_type not in roles:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -16,6 +18,6 @@ def role_permissions(roles: list | None | str):
                         "error": "You are not allowed to perform this action"
                     }
                 )
-            return func(*args, **kwargs)
+            return await func(*args, **kwargs)
         return update_wrapper(wrapper_perms, func)
     return decorator_perms

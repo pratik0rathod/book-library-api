@@ -33,7 +33,7 @@ async def register_user(db: AsyncSession, user: schema.UserRegister):
     return user_in
 
 
-async def login_user(db: AsyncSession, user: schema.LoginUser):
+async def login_user(db: AsyncSession, user):
     user_obj = await users_actions.filter_by(
         db,
         username=user.username,
@@ -91,7 +91,6 @@ async def delete_me(db: AsyncSession, user: models.Users):
     return {"message": "account deleted successfully"}
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_all_reader(db: AsyncSession, user: models.Users):
     users_obj = await users_actions.get_multi(
         db,
@@ -105,14 +104,12 @@ async def get_all_reader(db: AsyncSession, user: models.Users):
     return {"message": "no user in database"}
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_a_reader(db: AsyncSession, user: models.Users, reader_id: int):
     users_obj = await users_actions.get(db, reader_id)
     if users_obj is not None:
         return jsonable_encoder(users_obj)
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def set_status(db: AsyncSession, user: models.Users, reader_id: int, active: bool):
     users_obj = await users_actions.get(db, reader_id)
     user_in = await users_actions.update(
@@ -126,7 +123,6 @@ async def set_status(db: AsyncSession, user: models.Users, reader_id: int, activ
     return user_in
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def search_reader(db: AsyncSession, user: models.Users, filers: filters.FilterModelUser):
     results = await users_actions.get_multi(
         db,

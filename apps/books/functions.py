@@ -12,12 +12,10 @@ from book_management.core.constant import UserEnum
 from book_management.core.permission import role_permissions
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def count_books(db: AsyncSession, user: Users):
     return await book_action.count(db)
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_all_books(db: AsyncSession, user: Users):
     books = await book_action.get_multi(db, filters=False, sorting=False)
 
@@ -28,7 +26,6 @@ async def get_all_books(db: AsyncSession, user: Users):
     return jsonable_encoder(books)
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def get_a_book(db: AsyncSession, user: Users, book_id: int):
     book = await book_action.get(db, book_id)
 
@@ -45,7 +42,6 @@ async def get_a_book(db: AsyncSession, user: Users, book_id: int):
     return jsonable_encoder(book)
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def create_book_item(db: AsyncSession, user: Users, book: schema.BooksSchema):
     book = schema.AddBookSchema(
         **book.model_dump(),
@@ -56,7 +52,6 @@ async def create_book_item(db: AsyncSession, user: Users, book: schema.BooksSche
     return book_in
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def edit_book_item(
         db: AsyncSession,
         user: Users,
@@ -68,7 +63,6 @@ async def edit_book_item(
     return book_in
 
 
-@role_permissions(roles=[UserEnum.LIBRARIAN])
 async def delete_book_item(db: AsyncSession, user: Users, book_id):
     if await book_action.hard_delete(db, id=book_id):
         return {"message": f"item {book_id} deleted successfully"}
