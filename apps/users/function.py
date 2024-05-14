@@ -1,15 +1,15 @@
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
 
 from apps.users import schema, models, auth, filters
 from apps.users.crud import users_actions
 from book_management.core.constant import UserEnum
 from book_management.core.hash import hash_password, verify_password
 from book_management.core.permission import role_permissions
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 
-def register_user(db: Session, user: schema.UserRegister):
+async def register_user(db: AsyncSession, user: schema.UserRegister):
     new_user = {
         'username': user.username,
         'email': user.email,
@@ -19,22 +19,22 @@ def register_user(db: Session, user: schema.UserRegister):
 
     errors: dict[str, str] = dict()
 
-    if users_actions.filter_by(db, username=user.username, raise_exc=False):
+    if await users_actions.filter_by(db, username=user.username, raise_exc=False):
         errors["username_error"] = "Username is already taken"
 
-    if users_actions.filter_by(db, email=user.email, raise_exc=False):
+    if await users_actions.filter_by(db, email=user.email, raise_exc=False):
         errors["useremail_error"] = "User with this email address is already registed"
 
     if len(errors) > 0:
         raise HTTPException(status_code=400, detail={"errors": errors})
 
-    user_in = users_actions.create(db, obj_in=new_user)
+    user_in = await users_actions.create(db, obj_in=new_user)
 
     return user_in
 
 
-def login_user(db: Session, user: schema.LoginUser):
-    user_obj = users_actions.filter_by(
+async def login_user(db: AsyncSession, user: schema.LoginUser):
+    user_obj = await users_actions.filter_by(
         db,
         username=user.username,
         raise_exc=False
@@ -59,15 +59,16 @@ def login_user(db: Session, user: schema.LoginUser):
     )
 
 
-def get_me(db: Session, user: models.Users):
+async def get_me(db: AsyncSession, user: models.Users):
     return jsonable_encoder(user)
 
 
-def delete_me(db: Session, user: models.Users):
-    user = users_actions.filter_by(
+async def delete_me(db: AsyncSession, user: models.Users):
+    user = await users_actions.filter_by(
         db,
         raise_exc=False,
-        username=user.username
+        id=user.id,
+        joined_load=models.Users.book_transaction
     )
 
     for history in user.book_transaction:
@@ -79,7 +80,7 @@ def delete_me(db: Session, user: models.Users):
                 }
             )
 
-    users_actions.update(
+    await users_actions.update(
         db,
         db_obj=user,
         obj_in={
@@ -87,12 +88,12 @@ def delete_me(db: Session, user: models.Users):
         }
     )
 
-    return {"message": "account deleted sucesfully"}
+    return {"message": "account deleted successfully"}
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def get_all_reader(db: Session, user: models.Users):
-    users_obj = users_actions.get_multi(
+async def get_all_reader(db: AsyncSession, user: models.Users):
+    users_obj = await users_actions.get_multi(
         db,
         filters=False,
         sorting=False,
@@ -100,20 +101,21 @@ def get_all_reader(db: Session, user: models.Users):
 
     if users_obj is not None:
         return jsonable_encoder(users_obj)
+
     return {"message": "no user in database"}
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def get_a_reader(db: Session, user: models.Users, reader_id: int):
-    users_obj = users_actions.get(db, reader_id)
+async def get_a_reader(db: AsyncSession, user: models.Users, reader_id: int):
+    users_obj = await users_actions.get(db, reader_id)
     if users_obj is not None:
         return jsonable_encoder(users_obj)
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def set_status(db: Session, user: models.Users, reader_id: int, active: bool):
-    users_obj = users_actions.get(db, reader_id)
-    user_in = users_actions.update(
+async def set_status(db: AsyncSession, user: models.Users, reader_id: int, active: bool):
+    users_obj = await users_actions.get(db, reader_id)
+    user_in = await users_actions.update(
         db,
         db_obj=users_obj,
         obj_in={
@@ -125,8 +127,8 @@ def set_status(db: Session, user: models.Users, reader_id: int, active: bool):
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def search_reader(db: Session, user: models.Users, filers: filters.FilterModelUser):
-    results = users_actions.get_multi(
+async def search_reader(db: AsyncSession, user: models.Users, filers: filters.FilterModelUser):
+    results = await users_actions.get_multi(
         db,
         filters=True,
         filter_data=filers,

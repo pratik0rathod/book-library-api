@@ -1,14 +1,16 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, mapped_column, Mapped
-from sqlalchemy.ext.declarative import declarative_base, as_declarative, declared_attr
-from sqlalchemy import ForeignKey
+from collections.abc import AsyncIterable
 from datetime import datetime
 
-from book_management.core import config
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from sqlalchemy.orm import mapped_column, Mapped
 
-engine = create_engine(url=config.settings.DATABASE_URI.unicode_string())
+from database.database_manager import AsyncDataBaseManager
 
-session_local = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+# engine = create_engine(url=config.settings.DATABASE_URI.unicode_string())
+#
+# session_local = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
 @as_declarative()
@@ -25,17 +27,24 @@ class Base(object):
         onupdate=datetime.now, default=datetime.now)
 
 
-def create_db_table():
-    Base.metadata.create_all(engine)
+# creating async db connection for database
+async_sessionmanager = AsyncDataBaseManager()
+async_sessionmanager.init_db()
 
 
-def get_db():
+async def create_db_table():
+    await Base.metadata.create_all(async_sessionmanager.engine)
 
-    db = session_local()
 
-    try:
-        yield db
+async def get_async_db() -> AsyncIterable[AsyncSession]:
+    async with async_sessionmanager.session_maker() as session:
+        try:
+            yield session
 
-    except Exception:
-        db.close()
-        raise
+        except Exception as e:
+            print(e)
+            await session.rollback()
+            raise
+
+        finally:
+            await session.close()

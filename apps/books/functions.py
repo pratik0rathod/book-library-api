@@ -3,7 +3,7 @@ from datetime import date
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException
 from pydantic import TypeAdapter
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from apps.books import schema, filters, models
 from apps.books.crud import book_action, book_transaction_action
@@ -13,13 +13,13 @@ from book_management.core.permission import role_permissions
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def count_books(db: Session, user: Users):
-    return book_action.count(db)
+async def count_books(db: AsyncSession, user: Users):
+    return await book_action.count(db)
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def get_all_books(db: Session, user: Users):
-    books = book_action.get_multi(db, filters=False, sorting=False)
+async def get_all_books(db: AsyncSession, user: Users):
+    books = await book_action.get_multi(db, filters=False, sorting=False)
 
     if user.user_type == UserEnum.READER:
         adapter = TypeAdapter(list[schema.BooksSchema])
@@ -29,8 +29,8 @@ def get_all_books(db: Session, user: Users):
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def get_a_book(db: Session, user: Users, book_id: int):
-    book = book_action.get(db, book_id)
+async def get_a_book(db: AsyncSession, user: Users, book_id: int):
+    book = await book_action.get(db, book_id)
 
     if book is None:
         raise HTTPException(
@@ -46,40 +46,40 @@ def get_a_book(db: Session, user: Users, book_id: int):
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def create_book_item(db: Session, user: Users, book: schema.BooksSchema):
+async def create_book_item(db: AsyncSession, user: Users, book: schema.BooksSchema):
     book = schema.AddBookSchema(
         **book.model_dump(),
         added_by=user.id
     )
 
-    book_in = book_action.create(db, obj_in=book.model_dump())
+    book_in = await book_action.create(db, obj_in=book.model_dump())
     return book_in
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def edit_book_item(
-        db: Session,
+async def edit_book_item(
+        db: AsyncSession,
         user: Users,
         book_id: int,
         book: schema.BooksSchema
 ):
-    book_obj = book_action.get(db, book_id)
-    book_in = book_action.update(db, db_obj=book_obj, obj_in=book)
+    book_obj = await book_action.get(db, book_id)
+    book_in = await book_action.update(db, db_obj=book_obj, obj_in=book)
     return book_in
 
 
 @role_permissions(roles=[UserEnum.LIBRARIAN])
-def delete_book_item(db: Session, user: Users, book_id):
-    if book_action.hard_delete(db, id=book_id):
-        return {"message": f"item {book_id} deleted succesfully"}
+async def delete_book_item(db: AsyncSession, user: Users, book_id):
+    if await book_action.hard_delete(db, id=book_id):
+        return {"message": f"item {book_id} deleted successfully"}
 
 
-def search_book(
-        db: Session,
+async def search_book(
+        db: AsyncSession,
         user: Users,
         search: filters.FilterModelBook
 ):
-    results = book_action.get_multi(db, filter_data=search, sorting=False)
+    results = await book_action.get_multi(db, filter_data=search, sorting=False)
 
     if not results:
         return {"message": "could not found"}
@@ -91,8 +91,8 @@ def search_book(
     return jsonable_encoder(results)
 
 
-def _get_book_transaction_obj(db: Session, book_obj: models.Books, user: Users):
-    return book_transaction_action.filter_by(
+async def _get_book_transaction_obj(db: AsyncSession, book_obj: models.Books, user: Users):
+    return await book_transaction_action.filter_by(
         db,
         book_id=book_obj.id,
         user_id=user.id,
@@ -101,9 +101,9 @@ def _get_book_transaction_obj(db: Session, book_obj: models.Books, user: Users):
     )
 
 
-def borrow_book(db: Session, user: Users, book_id):
-    book_obj = book_action.get(db, book_id)
-    book_transaction_obj = _get_book_transaction_obj(
+async def borrow_book(db: AsyncSession, user: Users, book_id):
+    book_obj = await book_action.get(db, book_id)
+    book_transaction_obj = await _get_book_transaction_obj(
         db,
         book_obj=book_obj,
         user=user
@@ -111,7 +111,7 @@ def borrow_book(db: Session, user: Users, book_id):
 
     if book_transaction_obj is None:
         if book_obj.is_available:
-            book_action.update(
+            await book_action.update(
                 db,
                 db_obj=book_obj,
                 obj_in={
@@ -120,7 +120,7 @@ def borrow_book(db: Session, user: Users, book_id):
                 autocommit=False
             )
 
-            book_transaction_in = book_transaction_action.create(
+            book_transaction_in = await book_transaction_action.create(
                 db,
                 obj_in={
                     'user_id': user.id,
@@ -128,7 +128,7 @@ def borrow_book(db: Session, user: Users, book_id):
                 },
                 autocommit=False
             )
-            db.commit()
+            await db.commit()
             return book_transaction_in
 
         raise HTTPException(
@@ -144,16 +144,16 @@ def borrow_book(db: Session, user: Users, book_id):
     )
 
 
-def return_book(db: Session, user: Users, book_id):
-    book_obj = book_action.get(db, book_id)
-    book_transaction_obj = _get_book_transaction_obj(
+async def return_book(db: AsyncSession, user: Users, book_id):
+    book_obj = await book_action.get(db, book_id)
+    book_transaction_obj = await _get_book_transaction_obj(
         db,
         book_obj=book_obj,
         user=user
     )
 
     if book_transaction_obj is not None:
-        book_transaction_in = book_transaction_action.update(
+        book_transaction_in = await book_transaction_action.update(
             db,
             db_obj=book_transaction_obj,
             obj_in={
@@ -162,7 +162,7 @@ def return_book(db: Session, user: Users, book_id):
             autocommit=False
         )
 
-        book_action.update(
+        await book_action.update(
             db,
             db_obj=book_obj,
             obj_in={
@@ -171,7 +171,7 @@ def return_book(db: Session, user: Users, book_id):
             autocommit=False
         )
 
-        db.commit()
+        await db.commit()
 
         return book_transaction_in
 
@@ -181,8 +181,8 @@ def return_book(db: Session, user: Users, book_id):
     )
 
 
-def return_book_history(db: Session, user: Users):
-    history = book_transaction_action.get_multi(
+async def return_book_history(db: AsyncSession, user: Users):
+    history = await book_transaction_action.get_multi(
         db,
         filters=False,
         sorting=False,

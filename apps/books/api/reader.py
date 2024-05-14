@@ -1,11 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from apps.books import functions, schema
+from apps.books import functions
 from apps.users import auth
-from database.base import get_db
+from database.base import get_async_db
 
 reader_router = APIRouter(
     tags=['Reader']
@@ -14,20 +14,20 @@ reader_router = APIRouter(
 
 @reader_router.post('/borrow/{book_id}')
 async def borrow_book(
-        db: Annotated[Session, Depends(get_db)],
+        db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
         book_id: int
 ):
-    return functions.borrow_book(db, user=user, book_id=book_id)
+    return await functions.borrow_book(db, user=user, book_id=book_id)
 
 
 @reader_router.post('/return/{book_id}')
 async def return_book(
-        db: Annotated[Session, Depends(get_db)],
+        db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()],
         book_id: int
 ):
-    return functions.return_book(db, user=user, book_id=book_id)
+    return await functions.return_book(db, user=user, book_id=book_id)
 
 
 @reader_router.get(
@@ -35,7 +35,8 @@ async def return_book(
     # response_model=list[schema.BookTransactionSchema]
 )
 async def return_book_history(
-        db: Annotated[Session, Depends(get_db)],
+        db: Annotated[AsyncSession, Depends(get_async_db)],
         user: Annotated[auth.get_user, Depends()]
 ):
-    return functions.return_book_history(db, user=user)
+    return await functions.return_book_history(db, user=user)
+

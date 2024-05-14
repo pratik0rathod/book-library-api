@@ -29,7 +29,7 @@ class Settings(BaseSettings):
             return v
         print("Creating DB_URI from .env file ...")
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgresql+asyncpg",
             username=values.data.get("POSTGRES_USER"),
             password=values.data.get("POSTGRES_PASSWORD"),
             host=values.data.get("POSTGRES_HOST"),

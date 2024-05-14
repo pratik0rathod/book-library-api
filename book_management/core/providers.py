@@ -7,6 +7,7 @@ from starlette_admin.exceptions import LoginFailed
 from apps.users import models
 from book_management.core.hash import verify_password
 from database import base
+from database.base import get_async_db
 from book_management.core.constant import UserEnum
 from apps.users.crud import users_actions
 
@@ -17,9 +18,9 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
             password: str, remember_me: bool,
             request: Request, response: Response) -> Response:
 
-        with base.session_local() as db:
-            user:models.Users = users_actions.filter_by(
-                db,username=username,
+        async with await anext(get_async_db()) as db:
+            user: models.Users = await users_actions.filter_by(
+                db, username=username,
                 raise_exc=False
             )
             if user is not None:
@@ -31,16 +32,17 @@ class AdminUsernameAndPasswordProvider(AuthProvider):
             raise LoginFailed("Invalid username or password")
 
     async def is_authenticated(self, request) -> bool:
-        with base.session_local() as db:
-            user = users_actions.get(
+        
+        async with await anext(get_async_db()) as db:
+            user = await users_actions.get(
                 db,
                 request.session.get("userid", None),
                 raise_exc=False
             )
 
-        if user is not None:
-            request.state.user = user
-            return True
+            if user is not None:
+                request.state.user = user
+                return True
 
         return False
 

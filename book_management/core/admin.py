@@ -1,14 +1,13 @@
-from database import base
-
 from starlette_admin.contrib.sqla import Admin
 from starlette_admin.views import CustomView
 from book_management.core import providers
 from apps.books.admin.admin import book_transaction_view, book_view
 from apps.users.admin.admin import user_view
 from book_management.core.config import settings
+from database.base import async_sessionmanager
 
 admin = Admin(
-    engine=base.engine,
+    engine=async_sessionmanager.engine,
     title='Admin',
     base_url="/admin",
 

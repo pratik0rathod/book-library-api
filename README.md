@@ -33,4 +33,4 @@
 > fastapi dev .\book_management\main.py
       
 - for production
-> fastapi dev .\book_management\main.py
+> fastapi run .\book_management\main.py

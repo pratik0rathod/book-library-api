@@ -5,10 +5,10 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-
+from sqlalchemy.ext.asyncio.session import AsyncSession
 import book_management.core.config as config
 from apps.users.crud import users_actions
-from database.base import get_db
+from database.base import get_async_db
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='user/login')
 
@@ -35,11 +35,11 @@ def decode_token(token):
     return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 
 
-def get_user_obj(db: Session, user_id: int):
-    return users_actions.get(db, user_id)
+async def get_user_obj(db: AsyncSession, user_id: int):
+    return await users_actions.get(db, user_id)
 
 
-def get_user(token: Annotated[str, Depends(oauth_scheme)]):
+async def get_user(token: Annotated[str, Depends(oauth_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -47,9 +47,10 @@ def get_user(token: Annotated[str, Depends(oauth_scheme)]):
     )
 
     try:
-        db = next(get_db())
         data = decode_token(token)
-        user = get_user_obj(db=db, user_id=data['sub'])
+        async with await anext(get_async_db()) as db:
+            user = await get_user_obj(db=db, user_id=int(data['sub']))
+
         return user
 
     except JWTError as e:
