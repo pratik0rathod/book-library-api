@@ -5,8 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 
-
-
 # from . import get_db_url
 
 # from . import User
@@ -14,10 +12,13 @@ from alembic import context
 # from . import base
 
 
-from config import get_db_url_str
+from book_management.core.config import settings
+from apps.users.models import Users
+from apps.books.models import BookTransaction, Books
+from database.base import Base
 
-from apps.users.models import base
-from apps.users.models import base
+# from apps.users.models import base
+# from apps.users.models import base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,13 +29,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url',get_db_url_str())
+config.set_main_option('sqlalchemy.url', settings.DATABASE_URI.unicode_string())
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = base.Base.metadata
+target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

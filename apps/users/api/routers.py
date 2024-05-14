@@ -1,31 +1,43 @@
 from typing import Annotated
 
-
 from fastapi import APIRouter
 from fastapi import Depends
-from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from database.base import get_async_db
 
-from database.base import get_db
+from apps.users import function, schema, auth
 
-from apps.users import function,schema,auth
-from apps.users.api import librarian
+user_router = APIRouter(prefix='/user', tags=['User'])
 
-user_router  = APIRouter(prefix='/user',tags=['User'])
 
-@user_router.post("/register")
-async def register_user(db:Annotated[Session,Depends(get_db)],user:schema.UserRegister):
-    return function.register_user(db,user)
+@user_router.post("/register", response_model=schema.RetriveUser)
+async def register_user(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: schema.UserRegister,
+):
+
+    return await function.register_user(db=db, user=user)
+
 
 @user_router.post("/login")
-async def login_user(db:Annotated[Session,Depends(get_db)],userid:Annotated[OAuth2PasswordRequestForm,Depends()]):
-    return function.login_user(db,userid)
+async def login_user(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[OAuth2PasswordRequestForm, Depends()]
+):
+    return await function.login_user(db=db, user=user)
 
-@user_router.get("/me",response_model=schema.RetriveUser)
-async def get_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
-    return function.get_me(db,int(userid))
+
+@user_router.get("/me", response_model=schema.RetriveUser)
+async def get_me(user: Annotated[auth.get_user, Depends()]):
+
+    return await function.get_me(user=user)
+
 
 @user_router.delete("/delete/me")
-async def delete_me(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
-    return function.delete_me(db,int(userid))
+async def delete_me(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[auth.get_user, Depends()]
+):
 
+    return await function.delete_me(db=db, user=user)

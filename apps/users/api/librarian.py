@@ -1,32 +1,66 @@
-from typing import Annotated,Any
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Depends
-from sqlalchemy.orm import Session
 
-from database.base import get_db
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from database.base import get_async_db
 
-from apps.users import function,schema,auth
+from apps.users import function, schema, auth, filters
 
-from apps.books.api.routers import books_router_common
+from book_management.core.permission import role_permissions
+from book_management.core.constant import UserEnum
 
-librarian_router  = APIRouter(prefix='/readers',tags=['Librarian'])
+librarian_router = APIRouter(prefix='/readers', tags=['Librarian'])
 
-librarian_router.include_router(books_router_common)
 
-@librarian_router.get("/all",response_model=list[schema.RetriveUser])
-async def get_all_readers(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()]):
-    return function.get_all_reader(db,int(userid))
+@librarian_router.get("/all", response_model=list[schema.RetriveUser])
+@role_permissions(roles=[UserEnum.LIBRARIAN])
+async def get_all_readers(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[auth.get_user, Depends()],
+):
+    return await function.get_all_reader(db=db)
 
-@librarian_router.get("/search")
-async def search_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],filers:Annotated[schema.FilterModelUser,Depends(schema.FilterModelUser)]):
-    return function.search_reader(db,int(userid),filers)
 
-@librarian_router.get("/{reader_id}",response_model=schema.RetriveUser)
-async def get_a_reader(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],reader_id:int):
-    return function.get_a_reader(db,int(userid),reader_id)
+@librarian_router.get("/search", response_model=list[schema.RetriveUser])
+@role_permissions(roles=[UserEnum.LIBRARIAN])
+async def search_reader(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[auth.get_user, Depends()],
+        filers: Annotated[
+            filters.FilterModelUser,
+            Depends(filters.FilterModelUser)
+        ]
+):
+    return await function.search_reader(
+        db=db,
+        filers=filers,
+    )
+
+
+@librarian_router.get("/{reader_id}", response_model=schema.RetriveUser)
+@role_permissions(roles=[UserEnum.LIBRARIAN])
+async def get_a_reader(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[auth.get_user, Depends()],
+        reader_id: int
+):
+    return await function.get_a_reader(
+        db=db,
+        reader_id=reader_id
+    )
+
 
 @librarian_router.patch("/{reader_id}/set-status")
-async def set_status(db:Annotated[Session,Depends(get_db)],userid:Annotated[auth.get_user,Depends()],reader_id:int,active:bool= True):
-    return function.set_status(db,int(userid),reader_id,active)
-
+@role_permissions(roles=[UserEnum.LIBRARIAN])
+async def set_status(
+        db: Annotated[AsyncSession, Depends(get_async_db)],
+        user: Annotated[auth.get_user, Depends()],
+        reader_id: int, active: bool = True
+):
+    return await function.set_status(
+        db=db,
+        reader_id=reader_id,
+        active=active
+    )
